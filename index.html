@@ -1,0 +1,1779 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>東勢國小教育儲蓄戶家訪暨申請表</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <!-- JSZip for Client-side Word Docx generation -->
+  <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#f0f9ff',
+              100: '#e0f2fe',
+              500: '#0284c7',
+              600: '#0369a1',
+              700: '#075985',
+              800: '#0c4a6e',
+            }
+          },
+          fontFamily: {
+            kai: ['"BiauKai"', '"DFKai-SB"', '"TW-Kai"', '"STKaiti"', '"KaiTi"', 'serif'],
+            sans: ['"PingFang TC"', '"Microsoft JhengHei"', 'system-ui', 'sans-serif'],
+          }
+        }
+      }
+    };
+  </script>
+  <style>
+    /* Print styling */
+    @media print {
+      body * {
+        visibility: hidden;
+      }
+      #preview-paper, #preview-paper * {
+        visibility: visible;
+      }
+      #preview-paper {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        box-shadow: none !important;
+        border: none !important;
+      }
+      .no-print {
+        display: none !important;
+      }
+    }
+
+    /* Word document styling for preview */
+    .word-sheet {
+      width: 210mm;
+      min-height: 297mm;
+      padding: 16mm 14mm;
+      background: white;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+      margin: 0 auto;
+      font-family: 'BiauKai', 'DFKai-SB', 'TW-Kai', 'STKaiti', 'KaiTi', serif;
+      color: #000;
+      line-height: 1.35;
+      position: relative;
+    }
+
+    .word-table {
+      width: 100%;
+      border-collapse: collapse;
+      border: 2px solid #000;
+      font-size: 11pt;
+    }
+
+    .word-table th, .word-table td {
+      border: 1px solid #000;
+      padding: 4px 6px;
+      vertical-align: middle;
+    }
+
+    .word-table .thick-border {
+      border: 2.5px solid #000 !important;
+    }
+
+    .word-table .thick-border-top {
+      border-top: 2.5px solid #000 !important;
+    }
+    .word-table .thick-border-bottom {
+      border-bottom: 2.5px solid #000 !important;
+    }
+    .word-table .thick-border-left {
+      border-left: 2.5px solid #000 !important;
+    }
+    .word-table .thick-border-right {
+      border-right: 2.5px solid #000 !important;
+    }
+
+    /* Vertical text in table */
+    .vertical-lr {
+      writing-mode: vertical-lr;
+      letter-spacing: 4px;
+      text-orientation: upright;
+    }
+
+    .custom-scroll::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    .custom-scroll::-webkit-scrollbar-track {
+      background: #f1f5f9;
+    }
+    .custom-scroll::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 3px;
+    }
+    .custom-scroll::-webkit-scrollbar-thumb:hover {
+      background: #94a3b8;
+    }
+  </style>
+</head>
+<body class="bg-slate-100 text-slate-800 font-sans min-h-screen flex flex-col">
+
+  <!-- Notification Toast Container -->
+  <div id="toast-container" class="fixed top-4 right-4 z-50 flex flex-col gap-2 max-w-sm pointer-events-none"></div>
+
+  <!-- Confirmation Modal -->
+  <div id="confirm-modal" class="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-xl shadow-2xl max-w-md w-full p-6 animate-scale-up">
+      <div class="flex items-center gap-3 text-amber-600 mb-3">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+        <h3 id="modal-title" class="text-lg font-bold text-slate-900">確認操作</h3>
+      </div>
+      <p id="modal-message" class="text-slate-600 text-sm mb-6">您確定要清空所有填寫內容嗎？此動作將無法復原。</p>
+      <div class="flex justify-end gap-3">
+        <button id="modal-cancel-btn" type="button" class="px-4 py-2 text-sm font-medium text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-lg transition">取消</button>
+        <button id="modal-confirm-btn" type="button" class="px-4 py-2 text-sm font-medium text-white bg-red-600 hover:bg-red-700 rounded-lg transition">確認清空</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Top Navigation & Action Header -->
+  <header class="bg-white border-b border-slate-200 sticky top-0 z-40 shadow-sm no-print">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      <!-- Title & Branding -->
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-lg bg-brand-600 flex items-center justify-center text-white shadow-md shadow-brand-500/20">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+          </svg>
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <h1 class="text-lg sm:text-xl font-bold text-slate-900 tracking-tight">東勢國小教育儲蓄戶家訪暨申請表</h1>
+            <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-brand-50 text-brand-700 border border-brand-200">
+              即時同步
+            </span>
+          </div>
+          <p class="text-xs text-slate-500 hidden sm:block">臺中市東勢國民小學 · 線上填表與 Word 即時雙向預覽</p>
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="flex items-center gap-2">
+        <button id="btn-load-sample" type="button" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs sm:text-sm font-medium text-brand-700 bg-brand-50 hover:bg-brand-100 border border-brand-200 transition">
+          <svg class="w-4 h-4 text-brand-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+          <span class="hidden md:inline">載入</span>範例
+        </button>
+
+        <button id="btn-clear-form" type="button" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs sm:text-sm font-medium text-slate-600 bg-white hover:bg-slate-100 border border-slate-300 transition">
+          <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+          清空
+        </button>
+
+
+
+        <button id="btn-download-docx" type="button" class="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-xs sm:text-sm font-semibold text-white bg-brand-600 hover:bg-brand-700 shadow-sm transition">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+          下載 Word 檔
+        </button>
+      </div>
+    </div>
+
+    <!-- Mobile Tab Switcher -->
+    <div class="lg:hidden border-t border-slate-200 px-4 flex">
+      <button id="tab-btn-form" type="button" class="flex-1 py-2.5 text-center text-sm font-semibold text-brand-600 border-b-2 border-brand-600">
+        ✍️ 填寫表單
+      </button>
+      <button id="tab-btn-preview" type="button" class="flex-1 py-2.5 text-center text-sm font-medium text-slate-500 hover:text-slate-700">
+        📄 Word 同步預覽
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Work Area (Split Screen) -->
+  <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8 flex flex-col lg:flex-row gap-6">
+
+    <!-- LEFT COLUMN: Form Inputs -->
+    <div id="form-panel" class="w-full lg:w-1/2 flex flex-col gap-5">
+
+      <!-- Form Intro Banner -->
+      <div class="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-4 flex items-start gap-3 shadow-sm">
+        <div class="text-blue-600 mt-0.5">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        </div>
+        <div class="text-xs sm:text-sm text-slate-700 leading-relaxed">
+          <strong>填表說明：</strong>請導師於訪視後填寫各項欄位，右側將<strong>即時同步呈現正式公文格式</strong>。填寫完畢可直接點擊「下載 Word 檔」產製標準 .docx 文件。
+        </div>
+      </div>
+
+      <!-- Section 1: 學生基本資料 -->
+      <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+        <div class="px-5 py-3.5 bg-slate-50/80 border-b border-slate-200 flex items-center justify-between">
+          <h2 class="font-bold text-slate-800 text-sm sm:text-base flex items-center gap-2">
+            <span class="w-2 h-2 rounded-full bg-blue-500"></span>
+            一、學生基本資料
+          </h2>
+          <span class="text-xs text-slate-400">必填</span>
+        </div>
+        <div class="p-5 grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label for="input-student-name" class="block text-xs font-semibold text-slate-600 mb-1">學生姓名 <span class="text-red-500">*</span></label>
+            <input id="input-student-name" type="text" placeholder="例：林小華" class="w-full px-3 py-2 text-sm rounded-lg border border-slate-300 focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition">
+          </div>
+          <div>
+            <label for="input-grade-class" class="block text-xs font-semibold text-slate-600 mb-1">年級班別 <span class="text-red-500">*</span></label>
+            <input id="input-grade-class" type="text" placeholder="例：五年二班" class="w-full px-3 py-2 text-sm rounded-lg border border-slate-300 focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition">
+          </div>
+          <div>
+            <label for="input-id-number" class="block text-xs font-semibold text-slate-600 mb-1">身分證字號 <span class="text-red-500">*</span></label>
+            <input id="input-id-number" type="text" placeholder="例：B123456789" class="w-full px-3 py-2 text-sm rounded-lg border border-slate-300 focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition font-mono uppercase">
+          </div>
+          <div>
+            <label for="input-parent-phone" class="block text-xs font-semibold text-slate-600 mb-1">聯絡電話 <span class="text-red-500">*</span></label>
+            <input id="input-parent-phone" type="text" placeholder="例：0912-345678" class="w-full px-3 py-2 text-sm rounded-lg border border-slate-300 focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition">
+          </div>
+          <div class="sm:col-span-2">
+            <label for="input-address" class="block text-xs font-semibold text-slate-600 mb-1">居住/戶籍地址 <span class="text-red-500">*</span></label>
+            <input id="input-address" type="text" placeholder="例：臺中市東勢區東崎路五段100號" class="w-full px-3 py-2 text-sm rounded-lg border border-slate-300 focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition">
+          </div>
+        </div>
+      </div>
+
+      <!-- Section 2: 家庭狀況與主要經濟來源 -->
+      <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+        <div class="px-5 py-3.5 bg-slate-50/80 border-b border-slate-200">
+          <h2 class="font-bold text-slate-800 text-sm sm:text-base flex items-center gap-2">
+            <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+            二、家長概況
+          </h2>
+        </div>
+        <div class="p-5 grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div>
+            <label for="input-parent-name" class="block text-xs font-semibold text-slate-600 mb-1">家長姓名</label>
+            <input id="input-parent-name" type="text" placeholder="例：林大明" class="w-full px-3 py-2 text-sm rounded-lg border border-slate-300 focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition">
+          </div>
+          <div>
+            <label for="input-parent-job" class="block text-xs font-semibold text-slate-600 mb-1">職業</label>
+            <input id="input-parent-job" type="text" placeholder="例：臨時工（農業）" class="w-full px-3 py-2 text-sm rounded-lg border border-slate-300 focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition">
+          </div>
+          <div>
+            <label for="input-parent-income" class="block text-xs font-semibold text-slate-600 mb-1">每月收入</label>
+            <input id="input-parent-income" type="text" placeholder="例：約 18,000 元" class="w-full px-3 py-2 text-sm rounded-lg border border-slate-300 focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition">
+          </div>
+        </div>
+      </div>
+
+      <!-- Section 3: 親屬成員與同住狀況 -->
+      <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+        <div class="px-5 py-3.5 bg-slate-50/80 border-b border-slate-200 flex items-center justify-between">
+          <h2 class="font-bold text-slate-800 text-sm sm:text-base flex items-center gap-2">
+            <span class="w-2 h-2 rounded-full bg-purple-500"></span>
+            三、同住親屬成員資料 (最多 3 位)
+          </h2>
+          <span class="text-xs text-slate-400">表格欄位</span>
+        </div>
+        <div class="p-5 flex flex-col gap-4">
+          <!-- Relative 1 -->
+          <div class="p-3 bg-slate-50 rounded-lg border border-slate-200 flex flex-col gap-3">
+            <div class="text-xs font-bold text-slate-700 flex items-center justify-between">
+              <span>親屬成員 1</span>
+              <span class="text-slate-400 font-normal">第一列</span>
+            </div>
+            <div class="grid grid-cols-2 sm:grid-cols-6 gap-2">
+              <div class="col-span-1">
+                <input id="input-rel1-title" type="text" placeholder="稱謂(父)" class="w-full px-2.5 py-1.5 text-xs rounded border border-slate-300 focus:ring-1 focus:ring-brand-500 outline-none">
+              </div>
+              <div class="col-span-1">
+                <input id="input-rel1-name" type="text" placeholder="姓名" class="w-full px-2.5 py-1.5 text-xs rounded border border-slate-300 focus:ring-1 focus:ring-brand-500 outline-none">
+              </div>
+              <div class="col-span-1">
+                <input id="input-rel1-age" type="text" placeholder="年齡" class="w-full px-2.5 py-1.5 text-xs rounded border border-slate-300 focus:ring-1 focus:ring-brand-500 outline-none">
+              </div>
+              <div class="col-span-1">
+                <select id="input-rel1-health" class="w-full px-2 py-1.5 text-xs rounded border border-slate-300 focus:ring-1 focus:ring-brand-500 outline-none bg-white">
+                  <option value="正常">正常</option>
+                  <option value="疾病">疾病</option>
+                  <option value="殘障">殘障</option>
+                </select>
+              </div>
+              <div class="col-span-1">
+                <input id="input-rel1-job" type="text" placeholder="就業/學狀況" class="w-full px-2.5 py-1.5 text-xs rounded border border-slate-300 focus:ring-1 focus:ring-brand-500 outline-none">
+              </div>
+              <div class="col-span-1">
+                <input id="input-rel1-income" type="text" placeholder="每月收入" class="w-full px-2.5 py-1.5 text-xs rounded border border-slate-300 focus:ring-1 focus:ring-brand-500 outline-none">
+              </div>
+            </div>
+          </div>
+
+          <!-- Relative 2 -->
+          <div class="p-3 bg-slate-50 rounded-lg border border-slate-200 flex flex-col gap-3">
+            <div class="text-xs font-bold text-slate-700 flex items-center justify-between">
+              <span>親屬成員 2</span>
+              <span class="text-slate-400 font-normal">第二列</span>
+            </div>
+            <div class="grid grid-cols-2 sm:grid-cols-6 gap-2">
+              <div class="col-span-1">
+                <input id="input-rel2-title" type="text" placeholder="稱謂(母)" class="w-full px-2.5 py-1.5 text-xs rounded border border-slate-300 focus:ring-1 focus:ring-brand-500 outline-none">
+              </div>
+              <div class="col-span-1">
+                <input id="input-rel2-name" type="text" placeholder="姓名" class="w-full px-2.5 py-1.5 text-xs rounded border border-slate-300 focus:ring-1 focus:ring-brand-500 outline-none">
+              </div>
+              <div class="col-span-1">
+                <input id="input-rel2-age" type="text" placeholder="年齡" class="w-full px-2.5 py-1.5 text-xs rounded border border-slate-300 focus:ring-1 focus:ring-brand-500 outline-none">
+              </div>
+              <div class="col-span-1">
+                <select id="input-rel2-health" class="w-full px-2 py-1.5 text-xs rounded border border-slate-300 focus:ring-1 focus:ring-brand-500 outline-none bg-white">
+                  <option value="正常">正常</option>
+                  <option value="疾病">疾病</option>
+                  <option value="殘障">殘障</option>
+                </select>
+              </div>
+              <div class="col-span-1">
+                <input id="input-rel2-job" type="text" placeholder="就業/學狀況" class="w-full px-2.5 py-1.5 text-xs rounded border border-slate-300 focus:ring-1 focus:ring-brand-500 outline-none">
+              </div>
+              <div class="col-span-1">
+                <input id="input-rel2-income" type="text" placeholder="每月收入" class="w-full px-2.5 py-1.5 text-xs rounded border border-slate-300 focus:ring-1 focus:ring-brand-500 outline-none">
+              </div>
+            </div>
+          </div>
+
+          <!-- Relative 3 -->
+          <div class="p-3 bg-slate-50 rounded-lg border border-slate-200 flex flex-col gap-3">
+            <div class="text-xs font-bold text-slate-700 flex items-center justify-between">
+              <span>親屬成員 3</span>
+              <span class="text-slate-400 font-normal">第三列</span>
+            </div>
+            <div class="grid grid-cols-2 sm:grid-cols-6 gap-2">
+              <div class="col-span-1">
+                <input id="input-rel3-title" type="text" placeholder="稱謂(兄/姊)" class="w-full px-2.5 py-1.5 text-xs rounded border border-slate-300 focus:ring-1 focus:ring-brand-500 outline-none">
+              </div>
+              <div class="col-span-1">
+                <input id="input-rel3-name" type="text" placeholder="姓名" class="w-full px-2.5 py-1.5 text-xs rounded border border-slate-300 focus:ring-1 focus:ring-brand-500 outline-none">
+              </div>
+              <div class="col-span-1">
+                <input id="input-rel3-age" type="text" placeholder="年齡" class="w-full px-2.5 py-1.5 text-xs rounded border border-slate-300 focus:ring-1 focus:ring-brand-500 outline-none">
+              </div>
+              <div class="col-span-1">
+                <select id="input-rel3-health" class="w-full px-2 py-1.5 text-xs rounded border border-slate-300 focus:ring-1 focus:ring-brand-500 outline-none bg-white">
+                  <option value="正常">正常</option>
+                  <option value="疾病">疾病</option>
+                  <option value="殘障">殘障</option>
+                </select>
+              </div>
+              <div class="col-span-1">
+                <input id="input-rel3-job" type="text" placeholder="就業/學狀況" class="w-full px-2.5 py-1.5 text-xs rounded border border-slate-300 focus:ring-1 focus:ring-brand-500 outline-none">
+              </div>
+              <div class="col-span-1">
+                <input id="input-rel3-income" type="text" placeholder="每月收入" class="w-full px-2.5 py-1.5 text-xs rounded border border-slate-300 focus:ring-1 focus:ring-brand-500 outline-none">
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Section 4: 居住狀況與附繳證件 -->
+      <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+        <div class="px-5 py-3.5 bg-slate-50/80 border-b border-slate-200">
+          <h2 class="font-bold text-slate-800 text-sm sm:text-base flex items-center gap-2">
+            <span class="w-2 h-2 rounded-full bg-amber-500"></span>
+            四、居住狀況與附繳證件
+          </h2>
+        </div>
+        <div class="p-5 grid grid-cols-1 sm:grid-cols-2 gap-6">
+          <!-- 居住狀況 -->
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-2">居住狀況</label>
+            <div class="space-y-2">
+              <label class="flex items-center gap-2 text-sm text-slate-700 cursor-pointer">
+                <input type="radio" name="housing" value="租屋" id="house-rent" class="text-brand-600 focus:ring-brand-500" checked>
+                <span>租屋</span>
+              </label>
+              <label class="flex items-center gap-2 text-sm text-slate-700 cursor-pointer">
+                <input type="radio" name="housing" value="自有" id="house-own" class="text-brand-600 focus:ring-brand-500">
+                <span>自有</span>
+              </label>
+              <label class="flex items-center gap-2 text-sm text-slate-700 cursor-pointer">
+                <input type="radio" name="housing" value="其他" id="house-other" class="text-brand-600 focus:ring-brand-500">
+                <span>其他：</span>
+                <input id="input-house-other-text" type="text" placeholder="例：借住親友家" class="flex-1 px-2 py-1 text-xs rounded border border-slate-300 focus:ring-1 focus:ring-brand-500 outline-none">
+              </label>
+            </div>
+          </div>
+
+          <!-- 附繳證件 -->
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-2">附繳證件 (可複選)</label>
+            <div class="space-y-2">
+              <label class="flex items-center gap-2 text-sm text-slate-700 cursor-pointer">
+                <input type="checkbox" id="cert-low" class="rounded text-brand-600 focus:ring-brand-500">
+                <span>低收入戶證明</span>
+              </label>
+              <label class="flex items-center gap-2 text-sm text-slate-700 cursor-pointer">
+                <input type="checkbox" id="cert-midlow" class="rounded text-brand-600 focus:ring-brand-500" checked>
+                <span>中低收入戶證明</span>
+              </label>
+              <label class="flex items-center gap-2 text-sm text-slate-700 cursor-pointer">
+                <input type="checkbox" id="cert-disability" class="rounded text-brand-600 focus:ring-brand-500">
+                <span>殘障手冊 / 身心障礙證明</span>
+              </label>
+              <div class="flex items-center gap-2 text-sm text-slate-700">
+                <input type="checkbox" id="cert-other" class="rounded text-brand-600 focus:ring-brand-500">
+                <span>其他：</span>
+                <input id="input-cert-other-text" type="text" placeholder="例：重大傷病診斷書" class="flex-1 px-2 py-1 text-xs rounded border border-slate-300 focus:ring-1 focus:ring-brand-500 outline-none">
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Section 5: 申請補助事實與金額 -->
+      <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+        <div class="px-5 py-3.5 bg-slate-50/80 border-b border-slate-200 flex items-center justify-between">
+          <h2 class="font-bold text-slate-800 text-sm sm:text-base flex items-center gap-2">
+            <span class="w-2 h-2 rounded-full bg-rose-500"></span>
+            五、申請補助事實與需求金額
+          </h2>
+          <span class="text-xs text-slate-400">家訪紀錄核心</span>
+        </div>
+        <div class="p-5 space-y-4">
+          <!-- Quick templates chips -->
+          <div>
+            <div class="flex items-center justify-between mb-1.5">
+              <label for="input-subsidy-facts" class="block text-xs font-semibold text-slate-700">申請補助事實敘述 <span class="text-red-500">*</span></label>
+              <div class="flex items-center gap-1.5 text-xs">
+                <span class="text-slate-400">快速帶入範本：</span>
+                <button id="btn-template-1" type="button" class="text-brand-600 hover:text-brand-700 underline font-medium">傷病意外</button>
+                <span class="text-slate-300">|</span>
+                <button id="btn-template-2" type="button" class="text-brand-600 hover:text-brand-700 underline font-medium">單親困頓</button>
+                <span class="text-slate-300">|</span>
+                <button id="btn-template-3" type="button" class="text-brand-600 hover:text-brand-700 underline font-medium">突遭變故</button>
+              </div>
+            </div>
+            <textarea id="input-subsidy-facts" rows="4" placeholder="請詳述家訪發現之學生家庭狀況、經濟困境或突遭之變故情事..." class="w-full px-3 py-2 text-sm rounded-lg border border-slate-300 focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition leading-relaxed"></textarea>
+          </div>
+
+          <!-- Amount -->
+          <div class="bg-slate-50 p-4 rounded-lg border border-slate-200">
+            <label for="input-amount-number" class="block text-xs font-semibold text-slate-700 mb-1.5">申請補助金額 (新台幣元，選填)</label>
+            <div class="flex items-center gap-3">
+              <div class="relative flex-1">
+                <span class="absolute left-3 top-2 text-slate-400 text-sm font-bold">NT$</span>
+                <input id="input-amount-number" type="number" min="0" step="500" placeholder="尚未確定者請留白" class="w-full pl-12 pr-3 py-2 text-sm font-bold text-slate-800 rounded-lg border border-slate-300 focus:ring-2 focus:ring-brand-500 outline-none">
+              </div>
+              <div class="text-xs sm:text-sm font-bold text-brand-700 bg-brand-50 border border-brand-200 px-3 py-2 rounded-lg" id="amount-chinese-display">
+                壹萬伍仟元整
+              </div>
+            </div>
+            <!-- breakdown view -->
+            <div class="mt-2 flex items-center gap-2 text-xs text-slate-500">
+              <span>拆解填入：</span>
+              <span id="breakdown-wan" class="px-1.5 py-0.5 bg-white border border-slate-200 rounded font-bold text-slate-700">1</span> 萬
+              <span id="breakdown-qian" class="px-1.5 py-0.5 bg-white border border-slate-200 rounded font-bold text-slate-700">5</span> 仟
+              <span id="breakdown-bai" class="px-1.5 py-0.5 bg-white border border-slate-200 rounded font-bold text-slate-700">0</span> 佰
+              <span id="breakdown-shi" class="px-1.5 py-0.5 bg-white border border-slate-200 rounded font-bold text-slate-700">0</span> 拾
+              <span id="breakdown-yuan" class="px-1.5 py-0.5 bg-white border border-slate-200 rounded font-bold text-slate-700">0</span> 元整
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Section 6: 導師審查與簽章 -->
+      <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+        <div class="px-5 py-3.5 bg-slate-50/80 border-b border-slate-200">
+          <h2 class="font-bold text-slate-800 text-sm sm:text-base flex items-center gap-2">
+            <span class="w-2 h-2 rounded-full bg-cyan-500"></span>
+            六、導師審查與訪視日期
+          </h2>
+        </div>
+        <div class="p-5 space-y-4">
+          <div>
+            <div class="flex items-center justify-between mb-1.5 flex-wrap gap-1">
+              <label for="input-teacher-review" class="block text-xs font-semibold text-slate-700">導師審查意見</label>
+              <div class="flex items-center gap-1.5 text-xs">
+                <span class="text-slate-400">快速帶入範本：</span>
+                <button id="btn-review-tmpl-1" type="button" class="text-brand-600 hover:text-brand-700 underline font-medium">急難變故</button>
+                <span class="text-slate-300">|</span>
+                <button id="btn-review-tmpl-2" type="button" class="text-brand-600 hover:text-brand-700 underline font-medium">經濟困頓</button>
+                <span class="text-slate-300">|</span>
+                <button id="btn-review-tmpl-3" type="button" class="text-brand-600 hover:text-brand-700 underline font-medium">單親弱勢</button>
+                <span class="text-slate-300">|</span>
+                <button id="btn-review-tmpl-4" type="button" class="text-brand-600 hover:text-brand-700 underline font-medium">重大傷病</button>
+              </div>
+            </div>
+            <textarea id="input-teacher-review" rows="3" placeholder="請填寫導師審查與推薦意見，亦可點選上方快速範本帶入..." class="w-full px-3 py-2 text-sm rounded-lg border border-slate-300 focus:ring-2 focus:ring-brand-500 outline-none transition leading-relaxed"></textarea>
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <div class="flex items-center justify-between mb-1">
+                <label for="input-teacher-name" class="block text-xs font-semibold text-slate-500">導師簽章欄</label>
+                <span class="text-[11px] text-amber-700 bg-amber-50 border border-amber-200 px-1.5 py-0.5 rounded font-medium">🔒 手簽專用 (已鎖定)</span>
+              </div>
+              <input id="input-teacher-name" type="text" placeholder="手簽專用格，送出後請導師親自簽名或蓋章" class="w-full px-3 py-2 text-sm rounded-lg border border-slate-200 bg-slate-100 text-slate-400 outline-none cursor-not-allowed" disabled>
+            </div>
+            <div>
+              <label for="input-visit-date" class="block text-xs font-semibold text-slate-700 mb-1">訪視 / 申請日期</label>
+              <input id="input-visit-date" type="date" class="w-full px-3 py-2 text-sm rounded-lg border border-slate-300 focus:ring-2 focus:ring-brand-500 outline-none transition">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Section 7: 審查小組審查結果 (校方審查使用 - 鎖定不開放填寫) -->
+      <div class="bg-slate-50/90 rounded-xl border border-slate-300 shadow-sm overflow-hidden mb-6">
+        <div class="px-5 py-3.5 bg-slate-100 border-b border-slate-200 flex items-center justify-between">
+          <h2 class="font-bold text-slate-700 text-sm sm:text-base flex items-center gap-2">
+            <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+            七、小組審查結果 (審查小組專用 · 鎖定)
+          </h2>
+          <span class="inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded font-medium bg-amber-100 text-amber-800 border border-amber-200">
+            🔒 粗框內不開放填寫
+          </span>
+        </div>
+        <div class="p-5 space-y-4 select-none">
+          <!-- Notice Banner -->
+          <div class="bg-amber-50/80 border border-amber-200 rounded-lg p-3 text-xs text-amber-900 flex items-start gap-2.5">
+            <svg class="w-4 h-4 text-amber-600 mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            <div class="leading-relaxed">
+              <strong>依校內作業規範鎖定：</strong>本區塊為學校「教育儲蓄戶審查小組」專用欄位，導師實地家訪填報送件時保持空白，後續由審查小組開會審查核定後填註，故已為您設定鎖定不開放填寫。
+            </div>
+          </div>
+
+          <!-- Pass/Fail (Locked) -->
+          <div>
+            <label class="block text-xs font-semibold text-slate-500 mb-1.5">審查結果 (留白由小組決議)</label>
+            <div class="flex items-center gap-4 text-slate-400">
+              <label class="flex items-center gap-2 text-sm cursor-not-allowed">
+                <input type="radio" name="committee_result" value="通過" id="result-pass" class="text-slate-400 cursor-not-allowed" disabled>
+                <span>通過</span>
+              </label>
+              <label class="flex items-center gap-2 text-sm cursor-not-allowed">
+                <input type="radio" name="committee_result" value="不通過" id="result-fail" class="text-slate-400 cursor-not-allowed" disabled>
+                <span>不通過</span>
+              </label>
+              <label class="flex items-center gap-2 text-sm cursor-not-allowed">
+                <input type="radio" name="committee_result" value="未審" id="result-none" class="text-slate-500 cursor-not-allowed" checked disabled>
+                <span class="font-medium text-slate-600">留白 (由小組開會決議)</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Type categories (Locked) -->
+          <div>
+            <label class="block text-xs font-semibold text-slate-500 mb-1.5">補助類別</label>
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-slate-400">
+              <label class="flex items-center gap-1.5 text-xs cursor-not-allowed">
+                <input type="checkbox" id="cat-low" class="rounded text-slate-400 cursor-not-allowed" disabled>
+                <span>低收入戶家庭</span>
+              </label>
+              <label class="flex items-center gap-1.5 text-xs cursor-not-allowed">
+                <input type="checkbox" id="cat-midlow" class="rounded text-slate-400 cursor-not-allowed" disabled>
+                <span>中低收入戶家庭</span>
+              </label>
+              <label class="flex items-center gap-1.5 text-xs cursor-not-allowed">
+                <input type="checkbox" id="cat-emergency" class="rounded text-slate-400 cursor-not-allowed" disabled>
+                <span>家庭突遭變故</span>
+              </label>
+              <label class="flex items-center gap-1.5 text-xs cursor-not-allowed">
+                <input type="checkbox" id="cat-special" class="rounded text-slate-400 cursor-not-allowed" disabled>
+                <span>特殊個案</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Items (Locked) -->
+          <div>
+            <label class="block text-xs font-semibold text-slate-500 mb-1.5">補助項目</label>
+            <div class="space-y-1.5 text-slate-400">
+              <label class="flex items-center gap-2 text-xs cursor-not-allowed">
+                <input type="checkbox" id="item-tuition" class="rounded text-slate-400 cursor-not-allowed" disabled>
+                <span>1. 學雜費、代收代辦費</span>
+              </label>
+              <label class="flex items-center gap-2 text-xs cursor-not-allowed">
+                <input type="checkbox" id="item-afterschool" class="rounded text-slate-400 cursor-not-allowed" disabled>
+                <span>2. 課後照顧班費用</span>
+              </label>
+              <div class="flex items-center gap-2 text-xs text-slate-400">
+                <input type="checkbox" id="item-other" class="rounded text-slate-400 cursor-not-allowed" disabled>
+                <span>3. 其他：( 由小組填寫 )</span>
+                <input id="input-item-other-text" type="text" placeholder="未開放填寫" class="flex-1 px-2 py-1 text-xs rounded border border-slate-200 bg-slate-100 text-slate-400 outline-none cursor-not-allowed" disabled>
+              </div>
+            </div>
+          </div>
+
+          <!-- Approved Amount (Locked) -->
+          <div>
+            <label for="input-approved-amount" class="block text-xs font-semibold text-slate-500 mb-1">小組核發金額 (粗框內勿填寫)</label>
+            <input id="input-approved-amount" type="number" placeholder="由審查小組決議後填寫 (粗框內勿填寫)" class="w-full px-3 py-2 text-sm rounded-lg border border-slate-200 bg-slate-100 text-slate-400 outline-none cursor-not-allowed" disabled>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- RIGHT COLUMN: Synchronous Word Document Preview -->
+    <div id="preview-panel" class="w-full lg:w-1/2 flex flex-col gap-3">
+
+      <!-- Preview Control Toolbar -->
+      <div class="bg-white rounded-xl border border-slate-200 px-4 py-2.5 flex items-center justify-between shadow-sm no-print">
+        <div class="flex items-center gap-2 text-xs font-bold text-slate-700">
+          <svg class="w-4 h-4 text-brand-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+          <span>Word 檔案即時同步預覽</span>
+          <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium bg-emerald-100 text-emerald-800">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+            同步更新中
+          </span>
+        </div>
+
+        <!-- Zoom Controls -->
+        <div class="flex items-center gap-1 text-xs">
+          <button id="btn-zoom-out" type="button" class="p-1.5 rounded hover:bg-slate-100 text-slate-600 transition" title="縮小">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"/></svg>
+          </button>
+          <span id="zoom-label" class="w-12 text-center font-mono text-slate-600 font-semibold">100%</span>
+          <button id="btn-zoom-in" type="button" class="p-1.5 rounded hover:bg-slate-100 text-slate-600 transition" title="放大">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+          </button>
+          <button id="btn-zoom-reset" type="button" class="px-2 py-1 rounded hover:bg-slate-100 text-slate-600 font-medium transition" title="重設縮放">
+            重設
+          </button>
+          <button id="btn-zoom-fit" type="button" class="px-2 py-1 rounded hover:bg-slate-100 text-brand-600 font-medium transition" title="自動符合寬度">
+            適寬
+          </button>
+        </div>
+      </div>
+
+      <!-- Preview Scrollport -->
+      <div id="preview-scrollport" class="flex-1 overflow-auto p-4 bg-slate-200/70 rounded-xl border border-slate-300 custom-scroll flex justify-center items-start min-h-[600px]">
+        
+        <!-- Scalable Paper Container -->
+        <div id="preview-scalable-wrapper" class="origin-top transition-transform duration-100">
+          
+          <!-- Authentic A4 Word Document -->
+          <div id="preview-paper" class="word-sheet">
+            
+            <!-- Document Official Header -->
+            <div class="text-center mb-3">
+              <h1 class="text-[17pt] font-bold tracking-wider leading-relaxed text-black">
+                臺中市東勢國民小學教育儲蓄戶補助學生家訪紀錄暨申請表
+              </h1>
+            </div>
+
+            <!-- Official Word Table -->
+            <table class="word-table">
+              <colgroup>
+                <!-- 15 columns matching Word template grid: 430, 475, 538, 1005, 579, 230, 996, 677, 175, 267, 891, 365, 668, 884, 1638 -->
+                <col style="width: 4.6%;">
+                <col style="width: 5.0%;">
+                <col style="width: 5.7%;">
+                <col style="width: 10.7%;">
+                <col style="width: 6.1%;">
+                <col style="width: 2.4%;">
+                <col style="width: 10.6%;">
+                <col style="width: 7.2%;">
+                <col style="width: 1.9%;">
+                <col style="width: 2.8%;">
+                <col style="width: 9.5%;">
+                <col style="width: 3.9%;">
+                <col style="width: 7.1%;">
+                <col style="width: 9.4%;">
+                <col style="width: 17.1%;">
+              </colgroup>
+
+              <!-- Row 0: Basic Info Headers -->
+              <tr class="text-center font-bold">
+                <th colspan="3" class="py-1">學生姓名</th>
+                <th class="py-1">年級<br>班別</th>
+                <th colspan="3" class="py-1">身分證字號</th>
+                <th colspan="8" class="py-1">地&nbsp;&nbsp;址</th>
+              </tr>
+
+              <!-- Row 1: Basic Info Values -->
+              <tr class="h-10 text-center">
+                <td colspan="3" id="view-student-name" class="font-bold text-base"></td>
+                <td id="view-grade-class"></td>
+                <td colspan="3" id="view-id-number" class="tracking-widest font-mono"></td>
+                <td colspan="8" id="view-address" class="text-left px-2"></td>
+              </tr>
+
+              <!-- Row 2: Parent Info -->
+              <tr>
+                <td rowspan="5" class="text-center font-bold p-0 vertical-lr">
+                  <div class="py-4 text-center w-full">家&nbsp;庭&nbsp;狀&nbsp;況</div>
+                </td>
+                <td colspan="2" class="text-center font-bold">家長<br>姓名</td>
+                <td id="view-parent-name" class="text-center font-medium"></td>
+                <td class="text-center font-bold">職業</td>
+                <td colspan="2" id="view-parent-job" class="text-center"></td>
+                <td colspan="2" class="text-center font-bold">每月<br>收入</td>
+                <td colspan="2" id="view-parent-income" class="text-center"></td>
+                <td colspan="2" class="text-center font-bold">電話</td>
+                <td colspan="2" id="view-parent-phone" class="text-center"></td>
+              </tr>
+
+              <!-- Row 3: Relative Headers -->
+              <tr class="text-center font-bold text-xs">
+                <td colspan="2">親屬<br>稱謂</td>
+                <td colspan="2">姓名</td>
+                <td colspan="2">年齡</td>
+                <td colspan="2">健康<br>狀況</td>
+                <td colspan="2">就學&nbsp;或<br>就業狀況</td>
+                <td colspan="2">每月<br>收入</td>
+                <td>居住<br>狀況</td>
+                <td>附繳<br>證件</td>
+              </tr>
+
+              <!-- Row 4: Relative 1 -->
+              <tr class="h-9 text-xs">
+                <td colspan="2" id="view-rel1-title" class="text-center"></td>
+                <td colspan="2" id="view-rel1-name" class="text-center"></td>
+                <td colspan="2" id="view-rel1-age" class="text-center"></td>
+                <td colspan="2" id="view-rel1-health" class="text-center leading-tight"></td>
+                <td colspan="2" id="view-rel1-job" class="text-center"></td>
+                <td colspan="2" id="view-rel1-income" class="text-center"></td>
+                <!-- Housing (rowspan 3) -->
+                <td rowspan="3" id="view-housing" class="align-top py-2 px-1 text-xs leading-relaxed">
+                  <div>□租屋</div>
+                  <div>□自有</div>
+                  <div>□</div>
+                </td>
+                <!-- Attached Certs (rowspan 3) -->
+                <td rowspan="3" id="view-certs" class="align-top py-2 px-1 text-xs leading-relaxed">
+                  <div>□低收入戶</div>
+                  <div>□中低收入戶</div>
+                  <div>□殘障手冊</div>
+                  <div>□：_______</div>
+                </td>
+              </tr>
+
+              <!-- Row 5: Relative 2 -->
+              <tr class="h-9 text-xs">
+                <td colspan="2" id="view-rel2-title" class="text-center"></td>
+                <td colspan="2" id="view-rel2-name" class="text-center"></td>
+                <td colspan="2" id="view-rel2-age" class="text-center"></td>
+                <td colspan="2" id="view-rel2-health" class="text-center leading-tight"></td>
+                <td colspan="2" id="view-rel2-job" class="text-center"></td>
+                <td colspan="2" id="view-rel2-income" class="text-center"></td>
+              </tr>
+
+              <!-- Row 6: Relative 3 -->
+              <tr class="h-9 text-xs">
+                <td colspan="2" id="view-rel3-title" class="text-center"></td>
+                <td colspan="2" id="view-rel3-name" class="text-center"></td>
+                <td colspan="2" id="view-rel3-age" class="text-center"></td>
+                <td colspan="2" id="view-rel3-health" class="text-center leading-tight"></td>
+                <td colspan="2" id="view-rel3-job" class="text-center"></td>
+                <td colspan="2" id="view-rel3-income" class="text-center"></td>
+              </tr>
+
+              <!-- Row 7: Subsidy Facts -->
+              <tr>
+                <td rowspan="2" class="text-center font-bold p-0 vertical-lr">
+                  <div class="py-4 text-center w-full">申&nbsp;請&nbsp;補&nbsp;助&nbsp;事&nbsp;實</div>
+                </td>
+                <td colspan="14" class="h-32 align-top p-3 text-sm leading-relaxed" id="view-subsidy-facts">
+                  <!-- Facts content -->
+                </td>
+              </tr>
+
+              <!-- Row 8: Subsidy Amount -->
+              <tr>
+                <td colspan="14" class="py-2.5 px-3 font-bold text-sm tracking-wide" id="view-subsidy-amount">
+                  申請補助金額：新台幣&nbsp;&nbsp;&nbsp;萬&nbsp;&nbsp;&nbsp;仟&nbsp;&nbsp;&nbsp;佰&nbsp;&nbsp;&nbsp;拾&nbsp;&nbsp;&nbsp;元整
+                </td>
+              </tr>
+
+              <!-- Row 9: Teacher Review -->
+              <tr>
+                <td class="text-center font-bold p-0 vertical-lr">
+                  <div class="py-3 text-center w-full">導&nbsp;師&nbsp;審&nbsp;查</div>
+                </td>
+                <td colspan="7" class="align-top p-2 text-xs leading-relaxed" id="view-teacher-review">
+                </td>
+                <td colspan="2" class="text-center font-bold">導師<br>簽章</td>
+                <td colspan="5" class="align-bottom p-2 text-right text-xs" id="view-visit-date">
+                  年&nbsp;&nbsp;&nbsp;&nbsp;月&nbsp;&nbsp;&nbsp;&nbsp;日
+                </td>
+              </tr>
+
+              <!-- Row 10: Committee Review Result (Thick Border Area) -->
+              <tr class="thick-border-top">
+                <td rowspan="2" class="thick-border-left thick-border-bottom text-center font-bold p-0 vertical-lr">
+                  <div class="py-3 text-center w-full">小&nbsp;組&nbsp;審&nbsp;查&nbsp;結&nbsp;果</div>
+                </td>
+                <td class="text-center font-bold vertical-lr text-sm p-1" id="view-committee-pass-fail">
+                  □通過&nbsp;&nbsp;□不通過
+                </td>
+                <td colspan="13" class="thick-border-right align-top p-2.5 text-xs leading-relaxed">
+                  <div id="view-committee-categories" class="font-bold mb-2">
+                    □低收入戶家庭&nbsp;&nbsp;&nbsp;□中低收入戶家庭&nbsp;&nbsp;&nbsp;□家庭突遭變故&nbsp;&nbsp;&nbsp;□特殊個案
+                  </div>
+                  <div id="view-committee-items" class="space-y-1">
+                    <div>□ 1.學雜費、代收代辦費、</div>
+                    <div>□ 2.課後照顧班費用</div>
+                    <div id="view-committee-item-other">□ 3.其他：(&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;)。</div>
+                  </div>
+                </td>
+              </tr>
+
+              <!-- Row 11: Approved Amount (Thick Border Area) -->
+              <tr class="thick-border-bottom">
+                <td colspan="14" class="thick-border-right py-2 px-3 text-sm font-bold tracking-wide" id="view-approved-amount">
+                  核發金額：新台幣&nbsp;&nbsp;&nbsp;萬&nbsp;&nbsp;&nbsp;仟&nbsp;&nbsp;&nbsp;佰&nbsp;&nbsp;&nbsp;拾&nbsp;&nbsp;&nbsp;元整&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="text-xs font-normal text-slate-700">(粗框內勿填寫)</span>
+                </td>
+              </tr>
+
+              <!-- Row 12: Signature Titles -->
+              <tr class="text-center font-bold text-xs py-1">
+                <td colspan="6" class="py-1">申請人 簽章(導師)</td>
+                <td colspan="6" class="py-1">輔導主任 簽章</td>
+                <td colspan="3" class="py-1">校長 簽章</td>
+              </tr>
+
+              <!-- Row 13: Signature Boxes -->
+              <tr class="h-16 text-center">
+                <td colspan="6" id="view-sign-teacher" class="align-middle text-slate-700 font-medium"></td>
+                <td colspan="6" class="align-middle text-slate-400 text-xs"></td>
+                <td colspan="3" class="align-middle text-slate-400 text-xs"></td>
+              </tr>
+            </table>
+
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- Sticky Bottom Quick Download on Mobile -->
+  <div class="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 p-3 flex items-center justify-between shadow-lg z-30 no-print">
+    <div>
+      <div class="text-xs text-slate-500">已填妥資料？</div>
+      <div class="text-sm font-bold text-slate-800">可立即下載 Word 檔</div>
+    </div>
+    <button id="btn-quick-download" type="button" class="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-bold text-white bg-brand-600 hover:bg-brand-700 shadow transition">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+      下載 Word 檔
+    </button>
+  </div>
+
+  <!-- Embedded DOCX Base64 Template & Application Logic -->
+  <script>
+    // Embedded original template base64
+    const DOCX_TEMPLATE_BASE64 = "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";
+
+    // Chinese number conversion helpers
+    const CHINESE_DIGITS = ['零', '壹', '貳', '參', '肆', '伍', '陸', '柒', '捌', '玖'];
+
+    function numberToChineseAmount(num) {
+      const n = parseInt(num, 10);
+      if (isNaN(n) || n <= 0) return '零元整';
+      if (n >= 1000000) return n.toLocaleString('zh-TW') + ' 元整';
+
+      const wan = Math.floor(n / 10000);
+      const qian = Math.floor((n % 10000) / 1000);
+      const bai = Math.floor((n % 1000) / 100);
+      const shi = Math.floor((n % 100) / 10);
+      const yuan = n % 10;
+
+      let res = '';
+      if (wan > 0) res += CHINESE_DIGITS[wan] + '萬';
+      if (qian > 0) res += CHINESE_DIGITS[qian] + '仟';
+      else if (wan > 0 && (bai > 0 || shi > 0 || yuan > 0)) res += '零';
+      if (bai > 0) res += CHINESE_DIGITS[bai] + '佰';
+      else if (qian > 0 && (shi > 0 || yuan > 0)) res += '零';
+      if (shi > 0) res += CHINESE_DIGITS[shi] + '拾';
+      else if (bai > 0 && yuan > 0) res += '零';
+      if (yuan > 0) res += CHINESE_DIGITS[yuan];
+      return res + '元整';
+    }
+
+    function decomposeAmount(num) {
+      const n = parseInt(num, 10);
+      if (isNaN(n) || n <= 0) return { wan: '', qian: '', bai: '', shi: '', yuan: '' };
+      return {
+        wan: Math.floor(n / 10000) || '',
+        qian: Math.floor((n % 10000) / 1000) || '',
+        bai: Math.floor((n % 1000) / 100) || '',
+        shi: Math.floor((n % 100) / 10) || '',
+        yuan: (n % 10) || ''
+      };
+    }
+
+    function decomposeAmountChinese(num) {
+      const n = parseInt(num, 10);
+      if (isNaN(n) || n <= 0) return { wan: ' ', qian: ' ', bai: ' ', shi: ' ', yuan: ' ' };
+      const wan = Math.floor(n / 10000);
+      const qian = Math.floor((n % 10000) / 1000);
+      const bai = Math.floor((n % 1000) / 100);
+      const shi = Math.floor((n % 100) / 10);
+      const yuan = n % 10;
+      return {
+        wan: wan > 0 ? CHINESE_DIGITS[wan] : ' ',
+        qian: qian > 0 ? CHINESE_DIGITS[qian] : (wan > 0 && n % 10000 > 0 ? '零' : ' '),
+        bai: bai > 0 ? CHINESE_DIGITS[bai] : (qian > 0 && n % 1000 > 0 ? '零' : ' '),
+        shi: shi > 0 ? CHINESE_DIGITS[shi] : (bai > 0 && yuan > 0 ? '零' : ' '),
+        yuan: yuan > 0 ? CHINESE_DIGITS[yuan] : ' '
+      };
+    }
+
+    // Format Date to ROC Format (民國 115 年 11 月 5 日)
+    function formatROCDate(dateStr) {
+      if (!dateStr) return '年    月    日';
+      const parts = dateStr.split('-');
+      if (parts.length !== 3) return '年    月    日';
+      const year = parseInt(parts[0], 10) - 1911;
+      const month = parseInt(parts[1], 10);
+      const day = parseInt(parts[2], 10);
+      return year + ' 年 ' + (month < 10 ? '0' + month : month) + ' 月 ' + (day < 10 ? '0' + day : day) + ' 日';
+    }
+
+    // Toast notification
+    function showToast(message, type = 'info') {
+      const container = document.getElementById('toast-container');
+      const toast = document.createElement('div');
+      const bgColors = {
+        success: 'bg-emerald-600 text-white',
+        error: 'bg-red-600 text-white',
+        info: 'bg-slate-800 text-white',
+      };
+      toast.className = (bgColors[type] || bgColors.info) + ' px-4 py-3 rounded-lg shadow-xl text-xs sm:text-sm font-medium flex items-center gap-2 pointer-events-auto transition transform duration-300 translate-y-2 opacity-0';
+      toast.innerHTML = '<span>' + message + '</span>';
+      container.appendChild(toast);
+      requestAnimationFrame(() => {
+        toast.classList.remove('translate-y-2', 'opacity-0');
+      });
+      setTimeout(() => {
+        toast.classList.add('opacity-0', 'translate-y-2');
+        setTimeout(() => {
+          if (toast.parentNode) toast.parentNode.removeChild(toast);
+        }, 300);
+      }, 3500);
+    }
+
+    // State management & sample case
+    const sampleData = {
+      studentName: '林小華',
+      gradeClass: '五年二班',
+      idNumber: 'B123456789',
+      address: '臺中市東勢區東崎路五段100號',
+      parentPhone: '0912-345678',
+      parentName: '林大明',
+      parentJob: '臨時工（農業）',
+      parentIncome: '約 18,000 元',
+      rel1Title: '父',
+      rel1Name: '林大明',
+      rel1Age: '45',
+      rel1Health: '疾病',
+      rel1Job: '工人(意外骨折休養)',
+      rel1Income: '0 元',
+      rel2Title: '母',
+      rel2Name: '陳美玉',
+      rel2Age: '42',
+      rel2Health: '正常',
+      rel2Job: '家庭代工',
+      rel2Income: '18,000 元',
+      rel3Title: '兄',
+      rel3Name: '林大華',
+      rel3Age: '14',
+      rel3Health: '正常',
+      rel3Job: '東勢國中就讀',
+      rel3Income: '無',
+      housing: '租屋',
+      housingOtherText: '',
+      certLow: false,
+      certMidlow: true,
+      certDisability: false,
+      certOther: false,
+      certOtherText: '',
+      subsidyFacts: '學生父親上月於果園工作時不慎自高處摔落致右腿骨折，目前行動不便需休養半年，無法外出工作。\n母親平日以家庭代工為主，收入微薄不穩定，家中尚有一名就讀東勢國中的兄長。\n全家頓失主要經濟來源，生活陷入困境，無力負擔新學期學雜費、午餐費及課後照顧相關費用。\n導師實地家訪查證屬實，懇請核予教育儲蓄戶急難扶助金，以協助該生安心就學。',
+      amountNumber: 15000,
+      teacherReview: '經導師實地家訪查核，個案家庭確實突遭意外重大變故，經濟陷入困境，符合教育儲蓄戶補助資格，建請核發補助金壹萬伍仟元整。',
+      teacherName: '',
+      visitDate: '2026-11-05',
+      committeeResult: '未審',
+      catLow: false,
+      catMidlow: false,
+      catEmergency: false,
+      catSpecial: false,
+      itemTuition: false,
+      itemAfterschool: false,
+      itemOther: false,
+      itemOtherText: '',
+      approvedAmount: ''
+    };
+
+    // Sync Form Inputs to Live Preview
+    function updatePreview() {
+      const studentName = document.getElementById('input-student-name').value.trim();
+      const gradeClass = document.getElementById('input-grade-class').value.trim();
+      const idNumber = document.getElementById('input-id-number').value.trim();
+      const parentPhone = document.getElementById('input-parent-phone').value.trim();
+      const address = document.getElementById('input-address').value.trim();
+
+      const parentName = document.getElementById('input-parent-name').value.trim();
+      const parentJob = document.getElementById('input-parent-job').value.trim();
+      const parentIncome = document.getElementById('input-parent-income').value.trim();
+
+      // Relatives
+      const rel1Title = document.getElementById('input-rel1-title').value.trim();
+      const rel1Name = document.getElementById('input-rel1-name').value.trim();
+      const rel1Age = document.getElementById('input-rel1-age').value.trim();
+      const rel1Health = document.getElementById('input-rel1-health').value;
+      const rel1Job = document.getElementById('input-rel1-job').value.trim();
+      const rel1Income = document.getElementById('input-rel1-income').value.trim();
+
+      const rel2Title = document.getElementById('input-rel2-title').value.trim();
+      const rel2Name = document.getElementById('input-rel2-name').value.trim();
+      const rel2Age = document.getElementById('input-rel2-age').value.trim();
+      const rel2Health = document.getElementById('input-rel2-health').value;
+      const rel2Job = document.getElementById('input-rel2-job').value.trim();
+      const rel2Income = document.getElementById('input-rel2-income').value.trim();
+
+      const rel3Title = document.getElementById('input-rel3-title').value.trim();
+      const rel3Name = document.getElementById('input-rel3-name').value.trim();
+      const rel3Age = document.getElementById('input-rel3-age').value.trim();
+      const rel3Health = document.getElementById('input-rel3-health').value;
+      const rel3Job = document.getElementById('input-rel3-job').value.trim();
+      const rel3Income = document.getElementById('input-rel3-income').value.trim();
+
+      // Housing
+      const housingRadio = document.querySelector('input[name="housing"]:checked');
+      const housingVal = housingRadio ? housingRadio.value : '租屋';
+      const housingOtherText = document.getElementById('input-house-other-text').value.trim();
+
+      // Certs
+      const certLow = document.getElementById('cert-low').checked;
+      const certMidlow = document.getElementById('cert-midlow').checked;
+      const certDisability = document.getElementById('cert-disability').checked;
+      const certOther = document.getElementById('cert-other').checked;
+      const certOtherText = document.getElementById('input-cert-other-text').value.trim();
+
+      // Facts & Amount
+      const facts = document.getElementById('input-subsidy-facts').value.trim();
+      const amountVal = document.getElementById('input-amount-number').value.trim();
+
+      // Teacher Review
+      const teacherReview = document.getElementById('input-teacher-review').value.trim();
+      const teacherName = document.getElementById('input-teacher-name').value.trim();
+      const visitDate = document.getElementById('input-visit-date').value;
+
+      // Committee Result
+      const committeeRadio = document.querySelector('input[name="committee_result"]:checked');
+      const committeeResult = committeeRadio ? committeeRadio.value : '通過';
+      const catLow = document.getElementById('cat-low').checked;
+      const catMidlow = document.getElementById('cat-midlow').checked;
+      const catEmergency = document.getElementById('cat-emergency').checked;
+      const catSpecial = document.getElementById('cat-special').checked;
+      const itemTuition = document.getElementById('item-tuition').checked;
+      const itemAfterschool = document.getElementById('item-afterschool').checked;
+      const itemOther = document.getElementById('item-other').checked;
+      const itemOtherText = document.getElementById('input-item-other-text').value.trim();
+      const approvedAmountVal = document.getElementById('input-approved-amount').value.trim();
+
+      // Update Preview Elements
+      document.getElementById('view-student-name').textContent = studentName;
+      document.getElementById('view-grade-class').textContent = gradeClass;
+      document.getElementById('view-id-number').textContent = idNumber;
+      document.getElementById('view-address').textContent = address;
+
+      document.getElementById('view-parent-name').textContent = parentName;
+      document.getElementById('view-parent-job').textContent = parentJob;
+      document.getElementById('view-parent-income').textContent = parentIncome;
+      document.getElementById('view-parent-phone').textContent = parentPhone;
+
+      // Relatives 1
+      document.getElementById('view-rel1-title').textContent = rel1Title;
+      document.getElementById('view-rel1-name').textContent = rel1Name;
+      document.getElementById('view-rel1-age').textContent = rel1Age;
+      document.getElementById('view-rel1-health').innerHTML = formatHealthPreview(rel1Health, rel1Title || rel1Name);
+      document.getElementById('view-rel1-job').textContent = rel1Job;
+      document.getElementById('view-rel1-income').textContent = rel1Income;
+
+      // Relatives 2
+      document.getElementById('view-rel2-title').textContent = rel2Title;
+      document.getElementById('view-rel2-name').textContent = rel2Name;
+      document.getElementById('view-rel2-age').textContent = rel2Age;
+      document.getElementById('view-rel2-health').innerHTML = formatHealthPreview(rel2Health, rel2Title || rel2Name);
+      document.getElementById('view-rel2-job').textContent = rel2Job;
+      document.getElementById('view-rel2-income').textContent = rel2Income;
+
+      // Relatives 3
+      document.getElementById('view-rel3-title').textContent = rel3Title;
+      document.getElementById('view-rel3-name').textContent = rel3Name;
+      document.getElementById('view-rel3-age').textContent = rel3Age;
+      document.getElementById('view-rel3-health').innerHTML = formatHealthPreview(rel3Health, rel3Title || rel3Name);
+      document.getElementById('view-rel3-job').textContent = rel3Job;
+      document.getElementById('view-rel3-income').textContent = rel3Income;
+
+      // Housing Preview
+      let houseHtml = '<div>' + (housingVal === '租屋' ? '☑租屋' : '□租屋') + '</div>';
+      houseHtml += '<div>' + (housingVal === '自有' ? '☑自有' : '□自有') + '</div>';
+      if (housingVal === '其他' && housingOtherText) {
+        houseHtml += '<div>☑' + housingOtherText + '</div>';
+      } else {
+        houseHtml += '<div>' + (housingVal === '其他' ? '☑其他' : '□') + '</div>';
+      }
+      document.getElementById('view-housing').innerHTML = houseHtml;
+
+      // Certs Preview
+      let certHtml = '<div>' + (certLow ? '☑低收入戶' : '□低收入戶') + '</div>';
+      certHtml += '<div>' + (certMidlow ? '☑中低收入戶' : '□中低收入戶') + '</div>';
+      certHtml += '<div>' + (certDisability ? '☑殘障手冊' : '□殘障手冊') + '</div>';
+      if (certOther && certOtherText) {
+        certHtml += '<div>☑：' + certOtherText + '</div>';
+      } else {
+        certHtml += '<div>□：_______</div>';
+      }
+      document.getElementById('view-certs').innerHTML = certHtml;
+
+      // Facts
+      const factsContainer = document.getElementById('view-subsidy-facts');
+      if (facts) {
+        factsContainer.innerHTML = facts.split('\n').map(p => '<p class="mb-1 text-justify">' + p + '</p>').join('');
+      } else {
+        factsContainer.innerHTML = '<span class="text-slate-300">(請於左側填寫申請補助事實與家訪紀錄說明)</span>';
+      }
+
+      // Amount (Optional)
+      const amountNum = parseInt(amountVal, 10);
+      if (!isNaN(amountNum) && amountNum > 0) {
+        const dec = decomposeAmount(amountVal);
+        const decCh = decomposeAmountChinese(amountVal);
+        document.getElementById('amount-chinese-display').textContent = numberToChineseAmount(amountVal);
+        document.getElementById('breakdown-wan').textContent = dec.wan || '0';
+        document.getElementById('breakdown-qian').textContent = dec.qian || '0';
+        document.getElementById('breakdown-bai').textContent = dec.bai || '0';
+        document.getElementById('breakdown-shi').textContent = dec.shi || '0';
+        document.getElementById('breakdown-yuan').textContent = dec.yuan || '0';
+
+        let amountText = '申請補助金額：新台幣';
+        amountText += '  ' + (decCh.wan.trim() || '   ') + '  萬';
+        amountText += '  ' + (decCh.qian.trim() || '   ') + '  仟';
+        amountText += '  ' + (decCh.bai.trim() || '   ') + '  佰';
+        amountText += '  ' + (decCh.shi.trim() || '   ') + '  拾';
+        amountText += '  ' + (decCh.yuan.trim() || '   ') + '  元整';
+        amountText += '  （NT$ ' + amountNum.toLocaleString('zh-TW') + ' 元）';
+        document.getElementById('view-subsidy-amount').innerHTML = amountText;
+      } else {
+        document.getElementById('amount-chinese-display').textContent = '尚未確定者請留白';
+        document.getElementById('breakdown-wan').textContent = ' ';
+        document.getElementById('breakdown-qian').textContent = ' ';
+        document.getElementById('breakdown-bai').textContent = ' ';
+        document.getElementById('breakdown-shi').textContent = ' ';
+        document.getElementById('breakdown-yuan').textContent = ' ';
+        document.getElementById('view-subsidy-amount').innerHTML = '申請補助金額：新台幣&nbsp;&nbsp;&nbsp;萬&nbsp;&nbsp;&nbsp;仟&nbsp;&nbsp;&nbsp;佰&nbsp;&nbsp;&nbsp;拾&nbsp;&nbsp;&nbsp;元整';
+      }
+
+      // Teacher Review
+      document.getElementById('view-teacher-review').textContent = teacherReview || '';
+      document.getElementById('view-sign-teacher').textContent = teacherName || '';
+      document.getElementById('view-visit-date').innerHTML = formatROCDate(visitDate);
+
+      // Committee Result Preview
+      let commResultHtml = '';
+      if (committeeResult === '通過') {
+        commResultHtml = '☑通過&nbsp;&nbsp;□不通過';
+      } else if (committeeResult === '不通過') {
+        commResultHtml = '□通過&nbsp;&nbsp;☑不通過';
+      } else {
+        commResultHtml = '□通過&nbsp;&nbsp;□不通過';
+      }
+      document.getElementById('view-committee-pass-fail').innerHTML = commResultHtml;
+
+      let catHtml = (catLow ? '☑低收入戶家庭' : '□低收入戶家庭') + '&nbsp;&nbsp;&nbsp;';
+      catHtml += (catMidlow ? '☑中低收入戶家庭' : '□中低收入戶家庭') + '&nbsp;&nbsp;&nbsp;';
+      catHtml += (catEmergency ? '☑家庭突遭變故' : '□家庭突遭變故') + '&nbsp;&nbsp;&nbsp;';
+      catHtml += (catSpecial ? '☑特殊個案' : '□特殊個案');
+      document.getElementById('view-committee-categories').innerHTML = catHtml;
+
+      document.getElementById('view-committee-items').children[0].innerHTML = (itemTuition ? '☑' : '□') + ' 1.學雜費、代收代辦費、';
+      document.getElementById('view-committee-items').children[1].innerHTML = (itemAfterschool ? '☑' : '□') + ' 2.課後照顧班費用';
+      let otherItemHtml = (itemOther ? '☑' : '□') + ' 3.其他：(' + (itemOtherText ? ' ' + itemOtherText + ' ' : '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;') + ')。';
+      document.getElementById('view-committee-item-other').innerHTML = otherItemHtml;
+
+      // Approved amount
+      const appNum = parseInt(approvedAmountVal, 10);
+      if (!isNaN(appNum) && appNum > 0) {
+        const appDec = decomposeAmountChinese(approvedAmountVal);
+        let appStr = '核發金額：新台幣';
+        appStr += '  ' + (appDec.wan.trim() || '   ') + '  萬';
+        appStr += '  ' + (appDec.qian.trim() || '   ') + '  仟';
+        appStr += '  ' + (appDec.bai.trim() || '   ') + '  佰';
+        appStr += '  ' + (appDec.shi.trim() || '   ') + '  拾';
+        appStr += '  ' + (appDec.yuan.trim() || '   ') + '  元整';
+        appStr += '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="text-xs font-normal text-slate-700">(粗框內勿填寫)</span>';
+        document.getElementById('view-approved-amount').innerHTML = appStr;
+      } else {
+        document.getElementById('view-approved-amount').innerHTML = '核發金額：新台幣   萬   仟   佰   拾   元整      <span class="text-xs font-normal text-slate-700">(粗框內勿填寫)</span>';
+      }
+    }
+
+    function formatHealthPreview(status, hasData) {
+      if (!hasData) {
+        return '正常<br>疾病<br>殘障';
+      }
+      if (status === '正常') {
+        return '<span class="font-bold">☑正常</span><br><span class="text-slate-400">□疾病</span><br><span class="text-slate-400">□殘障</span>';
+      } else if (status === '疾病') {
+        return '<span class="text-slate-400">□正常</span><br><span class="font-bold text-red-600">☑疾病</span><br><span class="text-slate-400">□殘障</span>';
+      } else if (status === '殘障') {
+        return '<span class="text-slate-400">□正常</span><br><span class="text-slate-400">□疾病</span><br><span class="font-bold text-amber-600">☑殘障</span>';
+      }
+      return '正常<br>疾病<br>殘障';
+    }
+
+    // Populate Data into Form
+    function loadDataIntoForm(data) {
+      document.getElementById('input-student-name').value = data.studentName || '';
+      document.getElementById('input-grade-class').value = data.gradeClass || '';
+      document.getElementById('input-id-number').value = data.idNumber || '';
+      document.getElementById('input-address').value = data.address || '';
+      document.getElementById('input-parent-phone').value = data.parentPhone || '';
+
+      document.getElementById('input-parent-name').value = data.parentName || '';
+      document.getElementById('input-parent-job').value = data.parentJob || '';
+      document.getElementById('input-parent-income').value = data.parentIncome || '';
+
+      document.getElementById('input-rel1-title').value = data.rel1Title || '';
+      document.getElementById('input-rel1-name').value = data.rel1Name || '';
+      document.getElementById('input-rel1-age').value = data.rel1Age || '';
+      document.getElementById('input-rel1-health').value = data.rel1Health || '正常';
+      document.getElementById('input-rel1-job').value = data.rel1Job || '';
+      document.getElementById('input-rel1-income').value = data.rel1Income || '';
+
+      document.getElementById('input-rel2-title').value = data.rel2Title || '';
+      document.getElementById('input-rel2-name').value = data.rel2Name || '';
+      document.getElementById('input-rel2-age').value = data.rel2Age || '';
+      document.getElementById('input-rel2-health').value = data.rel2Health || '正常';
+      document.getElementById('input-rel2-job').value = data.rel2Job || '';
+      document.getElementById('input-rel2-income').value = data.rel2Income || '';
+
+      document.getElementById('input-rel3-title').value = data.rel3Title || '';
+      document.getElementById('input-rel3-name').value = data.rel3Name || '';
+      document.getElementById('input-rel3-age').value = data.rel3Age || '';
+      document.getElementById('input-rel3-health').value = data.rel3Health || '正常';
+      document.getElementById('input-rel3-job').value = data.rel3Job || '';
+      document.getElementById('input-rel3-income').value = data.rel3Income || '';
+
+      // Housing
+      if (data.housing === '自有') {
+        document.getElementById('house-own').checked = true;
+      } else if (data.housing === '其他') {
+        document.getElementById('house-other').checked = true;
+      } else {
+        document.getElementById('house-rent').checked = true;
+      }
+      document.getElementById('input-house-other-text').value = data.housingOtherText || '';
+
+      // Certs
+      document.getElementById('cert-low').checked = !!data.certLow;
+      document.getElementById('cert-midlow').checked = !!data.certMidlow;
+      document.getElementById('cert-disability').checked = !!data.certDisability;
+      document.getElementById('cert-other').checked = !!data.certOther;
+      document.getElementById('input-cert-other-text').value = data.certOtherText || '';
+
+      // Facts & Amount
+      document.getElementById('input-subsidy-facts').value = data.subsidyFacts || '';
+      document.getElementById('input-amount-number').value = data.amountNumber || '';
+
+      // Review
+      document.getElementById('input-teacher-review').value = data.teacherReview || '';
+      document.getElementById('input-teacher-name').value = data.teacherName || '';
+      document.getElementById('input-visit-date').value = data.visitDate || '';
+
+      // Committee
+      if (data.committeeResult === '通過') {
+        document.getElementById('result-pass').checked = true;
+      } else if (data.committeeResult === '不通過') {
+        document.getElementById('result-fail').checked = true;
+      } else {
+        document.getElementById('result-none').checked = true;
+      }
+      document.getElementById('cat-low').checked = !!data.catLow;
+      document.getElementById('cat-midlow').checked = !!data.catMidlow;
+      document.getElementById('cat-emergency').checked = !!data.catEmergency;
+      document.getElementById('cat-special').checked = !!data.catSpecial;
+      document.getElementById('item-tuition').checked = !!data.itemTuition;
+      document.getElementById('item-afterschool').checked = !!data.itemAfterschool;
+      document.getElementById('item-other').checked = !!data.itemOther;
+      document.getElementById('input-item-other-text').value = data.itemOtherText || '';
+      document.getElementById('input-approved-amount').value = data.approvedAmount || '';
+
+      updatePreview();
+    }
+
+    function clearAllForm(silent = false) {
+      const emptyData = {
+        studentName: '',
+        gradeClass: '',
+        idNumber: '',
+        address: '',
+        parentPhone: '',
+        parentName: '',
+        parentJob: '',
+        parentIncome: '',
+        rel1Title: '',
+        rel1Name: '',
+        rel1Age: '',
+        rel1Health: '正常',
+        rel1Job: '',
+        rel1Income: '',
+        rel2Title: '',
+        rel2Name: '',
+        rel2Age: '',
+        rel2Health: '正常',
+        rel2Job: '',
+        rel2Income: '',
+        rel3Title: '',
+        rel3Name: '',
+        rel3Age: '',
+        rel3Health: '正常',
+        rel3Job: '',
+        rel3Income: '',
+        housing: '租屋',
+        housingOtherText: '',
+        certLow: false,
+        certMidlow: false,
+        certDisability: false,
+        certOther: false,
+        certOtherText: '',
+        subsidyFacts: '',
+        amountNumber: '',
+        teacherReview: '',
+        teacherName: '',
+        visitDate: '',
+        committeeResult: '未審',
+        catLow: false,
+        catMidlow: false,
+        catEmergency: false,
+        catSpecial: false,
+        itemTuition: false,
+        itemAfterschool: false,
+        itemOther: false,
+        itemOtherText: '',
+        approvedAmount: ''
+      };
+      loadDataIntoForm(emptyData);
+      if (!silent) {
+        showToast('表單已清空', 'info');
+      }
+    }
+
+    // Generate and Download Word Docx
+    async function generateAndDownloadDocx() {
+      showToast('正在產生 Word 檔案，請稍候...', 'info');
+
+      try {
+        if (typeof JSZip === 'undefined') {
+          throw new Error('JSZip 程式庫尚未載入完成，請檢查網路連線或稍後再試。');
+        }
+
+        const zip = await JSZip.loadAsync(DOCX_TEMPLATE_BASE64, { base64: true });
+        const xmlText = await zip.file('word/document.xml').async('text');
+        
+        const parser = new DOMParser();
+        const xmlDoc = parser.parseFromString(xmlText, 'application/xml');
+        
+        const errNode = xmlDoc.getElementsByTagName('parsererror');
+        if (errNode.length > 0) {
+          throw new Error('模板 XML 解析失敗: ' + errNode[0].textContent);
+        }
+
+        // Helper to find descendants by localName
+        function findDescendant(node, localName) {
+          if (!node) return null;
+          for (let i = 0; i < node.childNodes.length; i++) {
+            const child = node.childNodes[i];
+            if (child.nodeType === 1) {
+              if (child.localName === localName || child.nodeName === 'w:' + localName || child.nodeName === localName) {
+                return child;
+              }
+              const found = findDescendant(child, localName);
+              if (found) return found;
+            }
+          }
+          return null;
+        }
+
+        function findChildren(node, localName) {
+          if (!node) return [];
+          const res = [];
+          for (let i = 0; i < node.childNodes.length; i++) {
+            const child = node.childNodes[i];
+            if (child.nodeType === 1 && (child.localName === localName || child.nodeName === 'w:' + localName || child.nodeName === localName)) {
+              res.push(child);
+            }
+          }
+          return res;
+        }
+
+        const tbl = findDescendant(xmlDoc, 'tbl');
+        if (!tbl) throw new Error('未在 Word 模板中找到表格結構');
+
+        const rows = findChildren(tbl, 'tr');
+        if (rows.length < 14) throw new Error('表格列數與預期不符 (應為 14 列)');
+
+        const W_NS = 'http://schemas.openxmlformats.org/wordprocessingml/2006/main';
+
+        function createRun(text, fontSize = null, bold = false) {
+          const r = xmlDoc.createElementNS(W_NS, 'w:r');
+          const rPr = xmlDoc.createElementNS(W_NS, 'w:rPr');
+          const rFonts = xmlDoc.createElementNS(W_NS, 'w:rFonts');
+          rFonts.setAttributeNS(W_NS, 'w:ascii', '標楷體');
+          rFonts.setAttributeNS(W_NS, 'w:eastAsia', '標楷體');
+          rFonts.setAttributeNS(W_NS, 'w:hAnsi', '標楷體');
+          rFonts.setAttributeNS(W_NS, 'w:hint', 'eastAsia');
+          rPr.appendChild(rFonts);
+          if (bold) {
+            rPr.appendChild(xmlDoc.createElementNS(W_NS, 'w:b'));
+          }
+          if (fontSize) {
+            const sz = xmlDoc.createElementNS(W_NS, 'w:sz');
+            sz.setAttributeNS(W_NS, 'w:val', String(Math.round(fontSize * 2)));
+            rPr.appendChild(sz);
+            const szCs = xmlDoc.createElementNS(W_NS, 'w:szCs');
+            szCs.setAttributeNS(W_NS, 'w:val', String(Math.round(fontSize * 2)));
+            rPr.appendChild(szCs);
+          }
+          r.appendChild(rPr);
+          const t = xmlDoc.createElementNS(W_NS, 'w:t');
+          t.textContent = text;
+          r.appendChild(t);
+          return r;
+        }
+
+        function setCellContent(tc, lines, align = 'center', fontSize = 10, bold = false) {
+          if (!tc) return;
+          const oldPs = findChildren(tc, 'p');
+          oldPs.forEach(p => tc.removeChild(p));
+
+          const textLines = Array.isArray(lines) ? lines : [lines];
+          const linesToInsert = textLines.length > 0 ? textLines : [''];
+
+          linesToInsert.forEach(lineText => {
+            const p = xmlDoc.createElementNS(W_NS, 'w:p');
+            const pPr = xmlDoc.createElementNS(W_NS, 'w:pPr');
+            const sp = xmlDoc.createElementNS(W_NS, 'w:spacing');
+            sp.setAttributeNS(W_NS, 'w:line', '240');
+            sp.setAttributeNS(W_NS, 'w:lineRule', 'auto');
+            sp.setAttributeNS(W_NS, 'w:before', '0');
+            sp.setAttributeNS(W_NS, 'w:after', '0');
+            pPr.appendChild(sp);
+
+            const jc = xmlDoc.createElementNS(W_NS, 'w:jc');
+            jc.setAttributeNS(W_NS, 'w:val', align);
+            pPr.appendChild(jc);
+
+            p.appendChild(pPr);
+            if (lineText) {
+              p.appendChild(createRun(lineText, fontSize, bold));
+            }
+            tc.appendChild(p);
+          });
+        }
+
+        // Extract Current Form Values
+        const sName = document.getElementById('input-student-name').value.trim();
+        const sGrade = document.getElementById('input-grade-class').value.trim();
+        const sId = document.getElementById('input-id-number').value.trim();
+        const sAddress = document.getElementById('input-address').value.trim();
+        const pPhone = document.getElementById('input-parent-phone').value.trim();
+
+        const pName = document.getElementById('input-parent-name').value.trim();
+        const pJob = document.getElementById('input-parent-job').value.trim();
+        const pIncome = document.getElementById('input-parent-income').value.trim();
+
+        // Row 1 (Student info)
+        const r1Tcs = findChildren(rows[1], 'tc');
+        setCellContent(r1Tcs[0], sName, 'center', 12, true);
+        setCellContent(r1Tcs[1], sGrade, 'center', 11);
+        setCellContent(r1Tcs[2], sId, 'center', 11);
+        setCellContent(r1Tcs[3], sAddress, 'left', 11);
+
+        // Row 2 (Parent info)
+        const r2Tcs = findChildren(rows[2], 'tc');
+        setCellContent(r2Tcs[2], pName, 'center', 11);
+        setCellContent(r2Tcs[4], pJob, 'center', 11);
+        setCellContent(r2Tcs[6], pIncome, 'center', 11);
+        setCellContent(r2Tcs[8], pPhone, 'center', 11);
+
+        // Housing & Certs
+        const houseRadio = document.querySelector('input[name="housing"]:checked');
+        const houseVal = houseRadio ? houseRadio.value : '租屋';
+        const houseOtherText = document.getElementById('input-house-other-text').value.trim();
+        const housingLines = [
+          (houseVal === '租屋' ? '☑租屋' : '□租屋'),
+          (houseVal === '自有' ? '☑自有' : '□自有'),
+          (houseVal === '其他' && houseOtherText ? '☑' + houseOtherText : (houseVal === '其他' ? '☑其他' : '□'))
+        ];
+
+        const certLines = [
+          (document.getElementById('cert-low').checked ? '☑低收入戶' : '□低收入戶'),
+          (document.getElementById('cert-midlow').checked ? '☑中低收入戶' : '□中低收入戶'),
+          (document.getElementById('cert-disability').checked ? '☑殘障手冊' : '□殘障手冊'),
+          (document.getElementById('cert-other').checked && document.getElementById('input-cert-other-text').value.trim() 
+            ? '☑：' + document.getElementById('input-cert-other-text').value.trim() 
+            : '□：_______')
+        ];
+
+        function getHealthOptions(status) {
+          if (status === '正常') return ['☑正常', '□疾病', '□殘障'];
+          if (status === '疾病') return ['□正常', '☑疾病', '□殘障'];
+          if (status === '殘障') return ['□正常', '□疾病', '☑殘障'];
+          return ['正常', '疾病', '殘障'];
+        }
+
+        // Relative 1 (Row 4)
+        const r4Tcs = findChildren(rows[4], 'tc');
+        setCellContent(r4Tcs[1], document.getElementById('input-rel1-title').value.trim(), 'center', 10);
+        setCellContent(r4Tcs[2], document.getElementById('input-rel1-name').value.trim(), 'center', 10);
+        setCellContent(r4Tcs[3], document.getElementById('input-rel1-age').value.trim(), 'center', 10);
+        const rel1Has = document.getElementById('input-rel1-title').value.trim() || document.getElementById('input-rel1-name').value.trim();
+        setCellContent(r4Tcs[4], rel1Has ? getHealthOptions(document.getElementById('input-rel1-health').value) : ['正常', '疾病', '殘障'], 'center', 9);
+        setCellContent(r4Tcs[5], document.getElementById('input-rel1-job').value.trim(), 'center', 10);
+        setCellContent(r4Tcs[6], document.getElementById('input-rel1-income').value.trim(), 'center', 10);
+        setCellContent(r4Tcs[7], housingLines, 'left', 10);
+        setCellContent(r4Tcs[8], certLines, 'left', 10);
+
+        // Relative 2 (Row 5)
+        const r5Tcs = findChildren(rows[5], 'tc');
+        setCellContent(r5Tcs[1], document.getElementById('input-rel2-title').value.trim(), 'center', 10);
+        setCellContent(r5Tcs[2], document.getElementById('input-rel2-name').value.trim(), 'center', 10);
+        setCellContent(r5Tcs[3], document.getElementById('input-rel2-age').value.trim(), 'center', 10);
+        const rel2Has = document.getElementById('input-rel2-title').value.trim() || document.getElementById('input-rel2-name').value.trim();
+        setCellContent(r5Tcs[4], rel2Has ? getHealthOptions(document.getElementById('input-rel2-health').value) : ['正常', '疾病', '殘障'], 'center', 9);
+        setCellContent(r5Tcs[5], document.getElementById('input-rel2-job').value.trim(), 'center', 10);
+        setCellContent(r5Tcs[6], document.getElementById('input-rel2-income').value.trim(), 'center', 10);
+
+        // Relative 3 (Row 6)
+        const r6Tcs = findChildren(rows[6], 'tc');
+        setCellContent(r6Tcs[1], document.getElementById('input-rel3-title').value.trim(), 'center', 10);
+        setCellContent(r6Tcs[2], document.getElementById('input-rel3-name').value.trim(), 'center', 10);
+        setCellContent(r6Tcs[3], document.getElementById('input-rel3-age').value.trim(), 'center', 10);
+        const rel3Has = document.getElementById('input-rel3-title').value.trim() || document.getElementById('input-rel3-name').value.trim();
+        setCellContent(r6Tcs[4], rel3Has ? getHealthOptions(document.getElementById('input-rel3-health').value) : ['正常', '疾病', '殘障'], 'center', 9);
+        setCellContent(r6Tcs[5], document.getElementById('input-rel3-job').value.trim(), 'center', 10);
+        setCellContent(r6Tcs[6], document.getElementById('input-rel3-income').value.trim(), 'center', 10);
+
+        // Facts (Row 7)
+        const factsText = document.getElementById('input-subsidy-facts').value.trim();
+        const r7Tcs = findChildren(rows[7], 'tc');
+        setCellContent(r7Tcs[1], factsText ? factsText.split('\n') : [''], 'both', 10.5);
+
+        // Amount (Row 8 - Optional)
+        const amtStr = document.getElementById('input-amount-number').value.trim();
+        const amtNum = parseInt(amtStr, 10);
+        let row8Text = '申請補助金額：新台幣';
+        if (!isNaN(amtNum) && amtNum > 0) {
+          const amtDec = decomposeAmountChinese(amtStr);
+          row8Text += '  ' + (amtDec.wan.trim() || '   ') + '  萬';
+          row8Text += '  ' + (amtDec.qian.trim() || '   ') + '  仟';
+          row8Text += '  ' + (amtDec.bai.trim() || '   ') + '  佰';
+          row8Text += '  ' + (amtDec.shi.trim() || '   ') + '  拾';
+          row8Text += '  ' + (amtDec.yuan.trim() || '   ') + '  元整';
+          row8Text += '  （NT$ ' + amtNum.toLocaleString('zh-TW') + ' 元）';
+        } else {
+          row8Text += '   萬   仟   佰   拾   元整';
+        }
+        const r8Tcs = findChildren(rows[8], 'tc');
+        setCellContent(r8Tcs[1], row8Text, 'left', 12);
+
+        // Teacher Review (Row 9)
+        const tReview = document.getElementById('input-teacher-review').value.trim();
+        const tDate = document.getElementById('input-visit-date').value;
+        const r9Tcs = findChildren(rows[9], 'tc');
+        setCellContent(r9Tcs[1], tReview, 'both', 10.5);
+        setCellContent(r9Tcs[3], formatROCDate(tDate), 'right', 11);
+
+        // Committee Result (Row 10 & 11 - Locked for Committee Use)
+        const r10Tcs = findChildren(rows[10], 'tc');
+        setCellContent(r10Tcs[1], ['□通過', '□不通過'], 'center', 13, true);
+
+        const r10c2Lines = [
+          '□低收入戶家庭   □中低收入戶家庭   □家庭突遭變故   □特殊個案',
+          '',
+          '□ 1.學雜費、代收代辦費、',
+          '□ 2.課後照顧班費用',
+          '□ 3.其他：(               )。'
+        ];
+        setCellContent(r10Tcs[2], r10c2Lines, 'both', 10.5);
+
+        // Approved Amount (Row 11 - Blank for Committee)
+        const r11Tcs = findChildren(rows[11], 'tc');
+        setCellContent(r11Tcs[1], '核發金額：新台幣   萬   仟   佰   拾   元整      (粗框內勿填寫)', 'left', 12);
+
+        // Teacher signature box (Row 13 Cell 0 - Blank for physical signature/seal)
+        // Kept empty so teachers physically sign or stamp their seal after printing
+
+        // Serialize and zip back
+        const serializer = new XMLSerializer();
+        const updatedXml = serializer.serializeToString(xmlDoc);
+        zip.file('word/document.xml', updatedXml);
+
+        const blob = await zip.generateAsync({
+          type: 'blob',
+          mimeType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+        });
+
+        // Trigger download
+        const filename = '東勢國小教育儲蓄戶家訪暨申請表_' + (sName || '未命名') + '.docx';
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+
+        showToast('已成功下載：' + filename, 'success');
+      } catch (err) {
+        console.error('Download error:', err);
+        showToast('下載失敗: ' + (err.message || '未知錯誤'), 'error');
+      }
+    }
+
+    // Zoom controller
+    let currentZoom = 1.0;
+    function setZoom(val) {
+      currentZoom = Math.min(Math.max(val, 0.4), 1.8);
+      const wrapper = document.getElementById('preview-scalable-wrapper');
+      wrapper.style.transform = 'scale(' + currentZoom + ')';
+      document.getElementById('zoom-label').textContent = Math.round(currentZoom * 100) + '%';
+    }
+
+    function fitPreviewWidth() {
+      const scrollport = document.getElementById('preview-scrollport');
+      const paper = document.getElementById('preview-paper');
+      const portWidth = scrollport.clientWidth - 32;
+      const paperWidth = paper.offsetWidth || 794;
+      const scale = portWidth / paperWidth;
+      setZoom(Math.min(scale, 1.2));
+    }
+
+    // Initialize application listeners
+    document.addEventListener('DOMContentLoaded', () => {
+      // Attach change & input listeners to all form controls for instant sync
+      const inputs = document.querySelectorAll('#form-panel input, #form-panel textarea, #form-panel select');
+      inputs.forEach(el => {
+        el.addEventListener('input', updatePreview);
+        el.addEventListener('change', updatePreview);
+      });
+
+      // Top Actions
+      document.getElementById('btn-load-sample').addEventListener('click', () => {
+        loadDataIntoForm(sampleData);
+        showToast('已載入東勢國小急難扶助真實範例資料', 'success');
+      });
+
+      const confirmModal = document.getElementById('confirm-modal');
+      document.getElementById('btn-clear-form').addEventListener('click', () => {
+        confirmModal.classList.remove('hidden');
+      });
+      document.getElementById('modal-cancel-btn').addEventListener('click', () => {
+        confirmModal.classList.add('hidden');
+      });
+      document.getElementById('modal-confirm-btn').addEventListener('click', () => {
+        confirmModal.classList.add('hidden');
+        clearAllForm();
+      });
+
+
+
+      document.getElementById('btn-download-docx').addEventListener('click', generateAndDownloadDocx);
+      document.getElementById('btn-quick-download').addEventListener('click', generateAndDownloadDocx);
+
+      // Template chips
+      document.getElementById('btn-template-1').addEventListener('click', () => {
+        document.getElementById('input-subsidy-facts').value = '學生主要照顧者（家長）於日前工作時不幸遭逢意外重大傷害，經醫師診斷須住院手術並長期臥床休養，至少六個月無法工作，家庭頓失唯一固定經濟來源。\n家中子女皆在學中，突遭此變故致生活與就學陷入困境，導師實地家訪查證屬實，懇請核予教育儲蓄戶急難扶助金以維護學生受教權益。';
+        updatePreview();
+        showToast('已帶入「傷病意外」陳述範本', 'info');
+      });
+
+      document.getElementById('btn-template-2').addEventListener('click', () => {
+        document.getElementById('input-subsidy-facts').value = '案家為單親家庭，母親獨力撫養兩名就學中子女，平時仰賴計時打零工與微薄社會補助維持家計。\n近期因物價通膨及房租負擔沉重，且母親健康欠佳工作時數受限，家庭經濟極度拮据，已無力支付新學期學雜費與代收代辦費用。\n經導師訪視輔導查證屬實，建請准予補助以減輕學童就學負擔。';
+        updatePreview();
+        showToast('已帶入「單親困頓」陳述範本', 'info');
+      });
+
+      document.getElementById('btn-template-3').addEventListener('click', () => {
+        document.getElementById('input-subsidy-facts').value = '學生家庭近期突遭不可抗力之重大變故，家庭經濟陷於停擺，日常生活與學業支出面臨重大危機。\n導師主動訪視關心，確認個案生活陷入急難，亟需外部教育資源挹注扶助，以穩定該生校園生活與學習心理。';
+        updatePreview();
+        showToast('已帶入「突遭變故」陳述範本', 'info');
+      });
+
+      // Teacher Review Templates
+      document.getElementById('btn-review-tmpl-1').addEventListener('click', () => {
+        document.getElementById('input-teacher-review').value = '經實地家訪查證屬實，該生家庭突遭意外重大變故，頓失主要經濟來源，生活陷入急難，符合教育儲蓄戶補助資格，建請審查小組核予扶助以維護學生受教權益。';
+        updatePreview();
+        showToast('已帶入「急難變故」審查範本', 'info');
+      });
+
+      document.getElementById('btn-review-tmpl-2').addEventListener('click', () => {
+        document.getElementById('input-teacher-review').value = '經訪視評估查核，案家經濟狀況確實拮据，主要照顧者收入微薄且不穩定，難以負擔學雜費及相關教育支出，建請准予核發補助以安心就學。';
+        updatePreview();
+        showToast('已帶入「經濟困頓」審查範本', 'info');
+      });
+
+      document.getElementById('btn-review-tmpl-3').addEventListener('click', () => {
+        document.getElementById('input-teacher-review').value = '經深入家訪關心，該生為單親／弱勢家庭，家中多名子女就學，主要照顧者工作所得有限、生活艱辛，亟需校內急難教育資源挹注，建請從優核予補助。';
+        updatePreview();
+        showToast('已帶入「單親弱勢」審查範本', 'info');
+      });
+
+      document.getElementById('btn-review-tmpl-4').addEventListener('click', () => {
+        document.getElementById('input-teacher-review').value = '經實地訪視查核，該生家長目前因重大疾病／傷病無法工作，家中醫療支出與生活負擔沉重，情況急迫，建請審查小組核定補助以紓解家庭困境。';
+        updatePreview();
+        showToast('已帶入「重大傷病」審查範本', 'info');
+      });
+
+      // Zoom
+      document.getElementById('btn-zoom-in').addEventListener('click', () => setZoom(currentZoom + 0.1));
+      document.getElementById('btn-zoom-out').addEventListener('click', () => setZoom(currentZoom - 0.1));
+      document.getElementById('btn-zoom-reset').addEventListener('click', () => setZoom(1.0));
+      document.getElementById('btn-zoom-fit').addEventListener('click', fitPreviewWidth);
+
+      // Mobile Tabs
+      const tabForm = document.getElementById('tab-btn-form');
+      const tabPreview = document.getElementById('tab-btn-preview');
+      const formPanel = document.getElementById('form-panel');
+      const previewPanel = document.getElementById('preview-panel');
+
+      tabForm.addEventListener('click', () => {
+        tabForm.className = 'flex-1 py-2.5 text-center text-sm font-semibold text-brand-600 border-b-2 border-brand-600';
+        tabPreview.className = 'flex-1 py-2.5 text-center text-sm font-medium text-slate-500 hover:text-slate-700';
+        formPanel.classList.remove('hidden');
+        previewPanel.classList.add('hidden');
+      });
+
+      tabPreview.addEventListener('click', () => {
+        tabPreview.className = 'flex-1 py-2.5 text-center text-sm font-semibold text-brand-600 border-b-2 border-brand-600';
+        tabForm.className = 'flex-1 py-2.5 text-center text-sm font-medium text-slate-500 hover:text-slate-700';
+        previewPanel.classList.remove('hidden');
+        formPanel.classList.add('hidden');
+        setTimeout(fitPreviewWidth, 50);
+      });
+
+      // Auto fit on window resize
+      window.addEventListener('resize', () => {
+        if (window.innerWidth >= 1024) {
+          formPanel.classList.remove('hidden');
+          previewPanel.classList.remove('hidden');
+        }
+      });
+
+      // Initial load: blank form ready for entry (do not pre-fill with sample)
+      clearAllForm(true);
+
+      // Default fit width on desktop
+      setTimeout(fitPreviewWidth, 100);
+    });
+  </script>
+</body>
+</html>
