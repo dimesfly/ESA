@@ -174,8 +174,6 @@
           清空
         </button>
 
-
-
         <button id="btn-download-docx" type="button" class="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-xs sm:text-sm font-semibold text-white bg-brand-600 hover:bg-brand-700 shadow-sm transition">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
           下載 Word 檔
@@ -226,7 +224,7 @@
           </div>
           <div>
             <label for="input-grade-class" class="block text-xs font-semibold text-slate-600 mb-1">年級班別 <span class="text-red-500">*</span></label>
-            <input id="input-grade-class" type="text" placeholder="例：五年二班" class="w-full px-3 py-2 text-sm rounded-lg border border-slate-300 focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition">
+            <input id="input-grade-class" type="text" placeholder="例：五年七班" class="w-full px-3 py-2 text-sm rounded-lg border border-slate-300 focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition">
           </div>
           <div>
             <label for="input-id-number" class="block text-xs font-semibold text-slate-600 mb-1">身分證字號 <span class="text-red-500">*</span></label>
@@ -254,15 +252,15 @@
         <div class="p-5 grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div>
             <label for="input-parent-name" class="block text-xs font-semibold text-slate-600 mb-1">家長姓名</label>
-            <input id="input-parent-name" type="text" placeholder="例：林大明" class="w-full px-3 py-2 text-sm rounded-lg border border-slate-300 focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition">
+            <input id="input-parent-name" type="text" placeholder="例：林大明" class="w-full px-3 py-2 text-sm rounded-lg border border-slate-300 focus:ring-2 focus:ring-brand-500 outline-none transition">
           </div>
           <div>
             <label for="input-parent-job" class="block text-xs font-semibold text-slate-600 mb-1">職業</label>
-            <input id="input-parent-job" type="text" placeholder="例：臨時工（農業）" class="w-full px-3 py-2 text-sm rounded-lg border border-slate-300 focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition">
+            <input id="input-parent-job" type="text" placeholder="例：臨時工（農業）" class="w-full px-3 py-2 text-sm rounded-lg border border-slate-300 focus:ring-2 focus:ring-brand-500 outline-none transition">
           </div>
           <div>
             <label for="input-parent-income" class="block text-xs font-semibold text-slate-600 mb-1">每月收入</label>
-            <input id="input-parent-income" type="text" placeholder="例：約 18,000 元" class="w-full px-3 py-2 text-sm rounded-lg border border-slate-300 focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition">
+            <input id="input-parent-income" type="text" placeholder="例：約 18,000 元" class="w-full px-3 py-2 text-sm rounded-lg border border-slate-300 focus:ring-2 focus:ring-brand-500 outline-none transition">
           </div>
         </div>
       </div>
@@ -430,12 +428,12 @@
         </div>
       </div>
 
-      <!-- Section 5: 申請補助事實與金額 -->
+      <!-- Section 5: 申請補助事實、項目與金額 -->
       <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
         <div class="px-5 py-3.5 bg-slate-50/80 border-b border-slate-200 flex items-center justify-between">
           <h2 class="font-bold text-slate-800 text-sm sm:text-base flex items-center gap-2">
             <span class="w-2 h-2 rounded-full bg-rose-500"></span>
-            五、申請補助事實與需求金額
+            五、申請補助事實、項目與金額
           </h2>
           <span class="text-xs text-slate-400">家訪紀錄核心</span>
         </div>
@@ -456,6 +454,26 @@
             <textarea id="input-subsidy-facts" rows="4" placeholder="請詳述家訪發現之學生家庭狀況、經濟困境或突遭之變故情事..." class="w-full px-3 py-2 text-sm rounded-lg border border-slate-300 focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition leading-relaxed"></textarea>
           </div>
 
+          <!-- Application Subsidy Items -->
+          <div class="bg-slate-50 p-4 rounded-lg border border-slate-200">
+            <label class="block text-xs font-semibold text-slate-700 mb-2">申請補助項目 (可複選)</label>
+            <div class="space-y-2">
+              <label class="flex items-center gap-2 text-sm text-slate-700 cursor-pointer">
+                <input type="checkbox" id="apply-item-tuition" class="rounded text-brand-600 focus:ring-brand-500">
+                <span>1. 學雜費、代收代辦費</span>
+              </label>
+              <label class="flex items-center gap-2 text-sm text-slate-700 cursor-pointer">
+                <input type="checkbox" id="apply-item-afterschool" class="rounded text-brand-600 focus:ring-brand-500">
+                <span>2. 課後照顧班費用</span>
+              </label>
+              <div class="flex items-center gap-2 text-sm text-slate-700">
+                <input type="checkbox" id="apply-item-other" class="rounded text-brand-600 focus:ring-brand-500">
+                <span>3. 其他：</span>
+                <input id="input-apply-item-other-text" type="text" placeholder="例：午餐補助或生活助學金" class="flex-1 px-2.5 py-1 text-xs rounded border border-slate-300 focus:ring-1 focus:ring-brand-500 outline-none">
+              </div>
+            </div>
+          </div>
+
           <!-- Amount -->
           <div class="bg-slate-50 p-4 rounded-lg border border-slate-200">
             <label for="input-amount-number" class="block text-xs font-semibold text-slate-700 mb-1.5">申請補助金額 (新台幣元，選填)</label>
@@ -465,23 +483,23 @@
                 <input id="input-amount-number" type="number" min="0" step="500" placeholder="尚未確定者請留白" class="w-full pl-12 pr-3 py-2 text-sm font-bold text-slate-800 rounded-lg border border-slate-300 focus:ring-2 focus:ring-brand-500 outline-none">
               </div>
               <div class="text-xs sm:text-sm font-bold text-brand-700 bg-brand-50 border border-brand-200 px-3 py-2 rounded-lg" id="amount-chinese-display">
-                壹萬伍仟元整
+                尚未確定者請留白
               </div>
             </div>
             <!-- breakdown view -->
             <div class="mt-2 flex items-center gap-2 text-xs text-slate-500">
               <span>拆解填入：</span>
-              <span id="breakdown-wan" class="px-1.5 py-0.5 bg-white border border-slate-200 rounded font-bold text-slate-700">1</span> 萬
-              <span id="breakdown-qian" class="px-1.5 py-0.5 bg-white border border-slate-200 rounded font-bold text-slate-700">5</span> 仟
-              <span id="breakdown-bai" class="px-1.5 py-0.5 bg-white border border-slate-200 rounded font-bold text-slate-700">0</span> 佰
-              <span id="breakdown-shi" class="px-1.5 py-0.5 bg-white border border-slate-200 rounded font-bold text-slate-700">0</span> 拾
-              <span id="breakdown-yuan" class="px-1.5 py-0.5 bg-white border border-slate-200 rounded font-bold text-slate-700">0</span> 元整
+              <span id="breakdown-wan" class="px-1.5 py-0.5 bg-white border border-slate-200 rounded font-bold text-slate-700"> </span> 萬
+              <span id="breakdown-qian" class="px-1.5 py-0.5 bg-white border border-slate-200 rounded font-bold text-slate-700"> </span> 仟
+              <span id="breakdown-bai" class="px-1.5 py-0.5 bg-white border border-slate-200 rounded font-bold text-slate-700"> </span> 佰
+              <span id="breakdown-shi" class="px-1.5 py-0.5 bg-white border border-slate-200 rounded font-bold text-slate-700"> </span> 拾
+              <span id="breakdown-yuan" class="px-1.5 py-0.5 bg-white border border-slate-200 rounded font-bold text-slate-700"> </span> 元整
             </div>
           </div>
         </div>
       </div>
 
-      <!-- Section 6: 導師審查與簽章 -->
+      <!-- Section 6: 導師審查與訪視日期 -->
       <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
         <div class="px-5 py-3.5 bg-slate-50/80 border-b border-slate-200">
           <h2 class="font-bold text-slate-800 text-sm sm:text-base flex items-center gap-2">
@@ -769,19 +787,27 @@
                 <td colspan="2" id="view-rel3-income" class="text-center"></td>
               </tr>
 
-              <!-- Row 7: Subsidy Facts -->
+              <!-- Row 7: Subsidy Facts with Items at Bottom -->
               <tr>
                 <td rowspan="2" class="text-center font-bold p-0 vertical-lr">
                   <div class="py-4 text-center w-full">申&nbsp;請&nbsp;補&nbsp;助&nbsp;事&nbsp;實</div>
                 </td>
-                <td colspan="14" class="h-32 align-top p-3 text-sm leading-relaxed" id="view-subsidy-facts">
-                  <!-- Facts content -->
+                <td colspan="14" class="h-36 align-top p-3 text-sm leading-relaxed">
+                  <div class="flex flex-col justify-between h-full min-h-[120px]">
+                    <!-- Facts narrative text at top -->
+                    <div id="view-subsidy-facts" class="flex-1 mb-2">
+                    </div>
+                    <!-- Checkbox items line adjusted to bottom -->
+                    <div id="view-apply-items-line" class="font-bold text-xs pt-2 border-t border-black/15">
+                      □ 1.學雜費、代收代辦費&nbsp;&nbsp;&nbsp;&nbsp;□ 2.課後照顧班費用&nbsp;&nbsp;&nbsp;&nbsp;□ 3.其他：(&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;)
+                    </div>
+                  </div>
                 </td>
               </tr>
 
               <!-- Row 8: Subsidy Amount -->
               <tr>
-                <td colspan="14" class="py-2.5 px-3 font-bold text-sm tracking-wide" id="view-subsidy-amount">
+                <td colspan="14" class="py-2.5 px-3 font-bold text-sm tracking-wide whitespace-nowrap overflow-hidden text-ellipsis" id="view-subsidy-amount">
                   申請補助金額：新台幣&nbsp;&nbsp;&nbsp;萬&nbsp;&nbsp;&nbsp;仟&nbsp;&nbsp;&nbsp;佰&nbsp;&nbsp;&nbsp;拾&nbsp;&nbsp;&nbsp;元整
                 </td>
               </tr>
@@ -905,23 +931,6 @@
       };
     }
 
-    function decomposeAmountChinese(num) {
-      const n = parseInt(num, 10);
-      if (isNaN(n) || n <= 0) return { wan: ' ', qian: ' ', bai: ' ', shi: ' ', yuan: ' ' };
-      const wan = Math.floor(n / 10000);
-      const qian = Math.floor((n % 10000) / 1000);
-      const bai = Math.floor((n % 1000) / 100);
-      const shi = Math.floor((n % 100) / 10);
-      const yuan = n % 10;
-      return {
-        wan: wan > 0 ? CHINESE_DIGITS[wan] : ' ',
-        qian: qian > 0 ? CHINESE_DIGITS[qian] : (wan > 0 && n % 10000 > 0 ? '零' : ' '),
-        bai: bai > 0 ? CHINESE_DIGITS[bai] : (qian > 0 && n % 1000 > 0 ? '零' : ' '),
-        shi: shi > 0 ? CHINESE_DIGITS[shi] : (bai > 0 && yuan > 0 ? '零' : ' '),
-        yuan: yuan > 0 ? CHINESE_DIGITS[yuan] : ' '
-      };
-    }
-
     // Format Date to ROC Format (民國 115 年 11 月 5 日)
     function formatROCDate(dateStr) {
       if (!dateStr) return '年    月    日';
@@ -956,10 +965,10 @@
       }, 3500);
     }
 
-    // State management & sample case
+    // State management & sample case (五年七班)
     const sampleData = {
       studentName: '林小華',
-      gradeClass: '五年二班',
+      gradeClass: '五年七班',
       idNumber: 'B123456789',
       address: '臺中市東勢區東崎路五段100號',
       parentPhone: '0912-345678',
@@ -991,7 +1000,11 @@
       certDisability: false,
       certOther: false,
       certOtherText: '',
-      subsidyFacts: '學生父親上月於果園工作時不慎自高處摔落致右腿骨折，目前行動不便需休養半年，無法外出工作。\n母親平日以家庭代工為主，收入微薄不穩定，家中尚有一名就讀東勢國中的兄長。\n全家頓失主要經濟來源，生活陷入困境，無力負擔新學期學雜費、午餐費及課後照顧相關費用。\n導師實地家訪查證屬實，懇請核予教育儲蓄戶急難扶助金，以協助該生安心就學。',
+      subsidyFacts: '學生父親上月於果園工作時不慎自高處摔落致右腿骨折，目前行動不便需休養半年，無法外出工作。\n母親平日以家庭代工為主，收入微薄不穩定，家中尚有一名就讀東勢國中的兄長。\n全家頓失主要經濟來源，生活陷入困境，無力負擔新學期學雜費、午餐費及課後照顧相關費用。\n導師實地家訪查證屬實，懇請核予教育儲蓄戶補助，以協助該生安心就學。',
+      applyItemTuition: true,
+      applyItemAfterschool: true,
+      applyItemOther: false,
+      applyItemOtherText: '',
       amountNumber: 15000,
       teacherReview: '經導師實地家訪查核，個案家庭確實突遭意外重大變故，經濟陷入困境，符合教育儲蓄戶補助資格，建請核發補助金壹萬伍仟元整。',
       teacherName: '',
@@ -1063,19 +1076,6 @@
       const teacherName = document.getElementById('input-teacher-name').value.trim();
       const visitDate = document.getElementById('input-visit-date').value;
 
-      // Committee Result
-      const committeeRadio = document.querySelector('input[name="committee_result"]:checked');
-      const committeeResult = committeeRadio ? committeeRadio.value : '通過';
-      const catLow = document.getElementById('cat-low').checked;
-      const catMidlow = document.getElementById('cat-midlow').checked;
-      const catEmergency = document.getElementById('cat-emergency').checked;
-      const catSpecial = document.getElementById('cat-special').checked;
-      const itemTuition = document.getElementById('item-tuition').checked;
-      const itemAfterschool = document.getElementById('item-afterschool').checked;
-      const itemOther = document.getElementById('item-other').checked;
-      const itemOtherText = document.getElementById('input-item-other-text').value.trim();
-      const approvedAmountVal = document.getElementById('input-approved-amount').value.trim();
-
       // Update Preview Elements
       document.getElementById('view-student-name').textContent = studentName;
       document.getElementById('view-grade-class').textContent = gradeClass;
@@ -1140,11 +1140,21 @@
         factsContainer.innerHTML = '<span class="text-slate-300">(請於左側填寫申請補助事實與家訪紀錄說明)</span>';
       }
 
-      // Amount (Optional)
+      // Application Subsidy Items line in Row 7 (at bottom)
+      const applyTuition = document.getElementById('apply-item-tuition').checked;
+      const applyAfterschool = document.getElementById('apply-item-afterschool').checked;
+      const applyOther = document.getElementById('apply-item-other').checked;
+      const applyOtherText = document.getElementById('input-apply-item-other-text').value.trim();
+
+      let itemsLineHtml = (applyTuition ? '☑' : '□') + ' 1.學雜費、代收代辦費&nbsp;&nbsp;&nbsp;&nbsp;';
+      itemsLineHtml += (applyAfterschool ? '☑' : '□') + ' 2.課後照顧班費用&nbsp;&nbsp;&nbsp;&nbsp;';
+      itemsLineHtml += (applyOther ? '☑' : '□') + ' 3.其他：(' + (applyOtherText ? ' ' + applyOtherText + ' ' : '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;') + ')';
+      document.getElementById('view-apply-items-line').innerHTML = itemsLineHtml;
+
+      // Amount (Row 8 - Strictly Single Line)
       const amountNum = parseInt(amountVal, 10);
       if (!isNaN(amountNum) && amountNum > 0) {
         const dec = decomposeAmount(amountVal);
-        const decCh = decomposeAmountChinese(amountVal);
         document.getElementById('amount-chinese-display').textContent = numberToChineseAmount(amountVal);
         document.getElementById('breakdown-wan').textContent = dec.wan || '0';
         document.getElementById('breakdown-qian').textContent = dec.qian || '0';
@@ -1152,13 +1162,18 @@
         document.getElementById('breakdown-shi').textContent = dec.shi || '0';
         document.getElementById('breakdown-yuan').textContent = dec.yuan || '0';
 
-        let amountText = '申請補助金額：新台幣';
-        amountText += '  ' + (decCh.wan.trim() || '   ') + '  萬';
-        amountText += '  ' + (decCh.qian.trim() || '   ') + '  仟';
-        amountText += '  ' + (decCh.bai.trim() || '   ') + '  佰';
-        amountText += '  ' + (decCh.shi.trim() || '   ') + '  拾';
-        amountText += '  ' + (decCh.yuan.trim() || '   ') + '  元整';
-        amountText += '  （NT$ ' + amountNum.toLocaleString('zh-TW') + ' 元）';
+        const wan = Math.floor(amountNum / 10000);
+        const qian = Math.floor((amountNum % 10000) / 1000);
+        const bai = Math.floor((amountNum % 1000) / 100);
+        const shi = Math.floor((amountNum % 100) / 10);
+        const yuan = amountNum % 10;
+        const w_str = wan > 0 ? CHINESE_DIGITS[wan] : '零';
+        const q_str = CHINESE_DIGITS[qian];
+        const b_str = CHINESE_DIGITS[bai];
+        const s_str = CHINESE_DIGITS[shi];
+        const y_str = CHINESE_DIGITS[yuan];
+
+        let amountText = '申請補助金額：新台幣&nbsp;&nbsp;' + w_str + '&nbsp;萬&nbsp;&nbsp;' + q_str + '&nbsp;仟&nbsp;&nbsp;' + b_str + '&nbsp;佰&nbsp;&nbsp;' + s_str + '&nbsp;拾&nbsp;&nbsp;' + y_str + '&nbsp;元整';
         document.getElementById('view-subsidy-amount').innerHTML = amountText;
       } else {
         document.getElementById('amount-chinese-display').textContent = '尚未確定者請留白';
@@ -1172,46 +1187,16 @@
 
       // Teacher Review
       document.getElementById('view-teacher-review').textContent = teacherReview || '';
-      document.getElementById('view-sign-teacher').textContent = teacherName || '';
+      document.getElementById('view-sign-teacher').textContent = '';
       document.getElementById('view-visit-date').innerHTML = formatROCDate(visitDate);
 
-      // Committee Result Preview
-      let commResultHtml = '';
-      if (committeeResult === '通過') {
-        commResultHtml = '☑通過&nbsp;&nbsp;□不通過';
-      } else if (committeeResult === '不通過') {
-        commResultHtml = '□通過&nbsp;&nbsp;☑不通過';
-      } else {
-        commResultHtml = '□通過&nbsp;&nbsp;□不通過';
-      }
-      document.getElementById('view-committee-pass-fail').innerHTML = commResultHtml;
-
-      let catHtml = (catLow ? '☑低收入戶家庭' : '□低收入戶家庭') + '&nbsp;&nbsp;&nbsp;';
-      catHtml += (catMidlow ? '☑中低收入戶家庭' : '□中低收入戶家庭') + '&nbsp;&nbsp;&nbsp;';
-      catHtml += (catEmergency ? '☑家庭突遭變故' : '□家庭突遭變故') + '&nbsp;&nbsp;&nbsp;';
-      catHtml += (catSpecial ? '☑特殊個案' : '□特殊個案');
-      document.getElementById('view-committee-categories').innerHTML = catHtml;
-
-      document.getElementById('view-committee-items').children[0].innerHTML = (itemTuition ? '☑' : '□') + ' 1.學雜費、代收代辦費、';
-      document.getElementById('view-committee-items').children[1].innerHTML = (itemAfterschool ? '☑' : '□') + ' 2.課後照顧班費用';
-      let otherItemHtml = (itemOther ? '☑' : '□') + ' 3.其他：(' + (itemOtherText ? ' ' + itemOtherText + ' ' : '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;') + ')。';
-      document.getElementById('view-committee-item-other').innerHTML = otherItemHtml;
-
-      // Approved amount
-      const appNum = parseInt(approvedAmountVal, 10);
-      if (!isNaN(appNum) && appNum > 0) {
-        const appDec = decomposeAmountChinese(approvedAmountVal);
-        let appStr = '核發金額：新台幣';
-        appStr += '  ' + (appDec.wan.trim() || '   ') + '  萬';
-        appStr += '  ' + (appDec.qian.trim() || '   ') + '  仟';
-        appStr += '  ' + (appDec.bai.trim() || '   ') + '  佰';
-        appStr += '  ' + (appDec.shi.trim() || '   ') + '  拾';
-        appStr += '  ' + (appDec.yuan.trim() || '   ') + '  元整';
-        appStr += '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="text-xs font-normal text-slate-700">(粗框內勿填寫)</span>';
-        document.getElementById('view-approved-amount').innerHTML = appStr;
-      } else {
-        document.getElementById('view-approved-amount').innerHTML = '核發金額：新台幣   萬   仟   佰   拾   元整      <span class="text-xs font-normal text-slate-700">(粗框內勿填寫)</span>';
-      }
+      // Committee Result Preview (locked as official blank)
+      document.getElementById('view-committee-pass-fail').innerHTML = '□通過&nbsp;&nbsp;□不通過';
+      document.getElementById('view-committee-categories').innerHTML = '□低收入戶家庭&nbsp;&nbsp;&nbsp;□中低收入戶家庭&nbsp;&nbsp;&nbsp;□家庭突遭變故&nbsp;&nbsp;&nbsp;□特殊個案';
+      document.getElementById('view-committee-items').children[0].innerHTML = '□ 1.學雜費、代收代辦費、';
+      document.getElementById('view-committee-items').children[1].innerHTML = '□ 2.課後照顧班費用';
+      document.getElementById('view-committee-item-other').innerHTML = '□ 3.其他：(&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;)。';
+      document.getElementById('view-approved-amount').innerHTML = '核發金額：新台幣   萬   仟   佰   拾   元整      <span class="text-xs font-normal text-slate-700">(粗框內勿填寫)</span>';
     }
 
     function formatHealthPreview(status, hasData) {
@@ -1278,32 +1263,18 @@
       document.getElementById('cert-other').checked = !!data.certOther;
       document.getElementById('input-cert-other-text').value = data.certOtherText || '';
 
-      // Facts & Amount
+      // Facts & Items & Amount
       document.getElementById('input-subsidy-facts').value = data.subsidyFacts || '';
+      document.getElementById('apply-item-tuition').checked = !!data.applyItemTuition;
+      document.getElementById('apply-item-afterschool').checked = !!data.applyItemAfterschool;
+      document.getElementById('apply-item-other').checked = !!data.applyItemOther;
+      document.getElementById('input-apply-item-other-text').value = data.applyItemOtherText || '';
       document.getElementById('input-amount-number').value = data.amountNumber || '';
 
       // Review
       document.getElementById('input-teacher-review').value = data.teacherReview || '';
-      document.getElementById('input-teacher-name').value = data.teacherName || '';
+      document.getElementById('input-teacher-name').value = '';
       document.getElementById('input-visit-date').value = data.visitDate || '';
-
-      // Committee
-      if (data.committeeResult === '通過') {
-        document.getElementById('result-pass').checked = true;
-      } else if (data.committeeResult === '不通過') {
-        document.getElementById('result-fail').checked = true;
-      } else {
-        document.getElementById('result-none').checked = true;
-      }
-      document.getElementById('cat-low').checked = !!data.catLow;
-      document.getElementById('cat-midlow').checked = !!data.catMidlow;
-      document.getElementById('cat-emergency').checked = !!data.catEmergency;
-      document.getElementById('cat-special').checked = !!data.catSpecial;
-      document.getElementById('item-tuition').checked = !!data.itemTuition;
-      document.getElementById('item-afterschool').checked = !!data.itemAfterschool;
-      document.getElementById('item-other').checked = !!data.itemOther;
-      document.getElementById('input-item-other-text').value = data.itemOtherText || '';
-      document.getElementById('input-approved-amount').value = data.approvedAmount || '';
 
       updatePreview();
     }
@@ -1344,6 +1315,10 @@
         certOther: false,
         certOtherText: '',
         subsidyFacts: '',
+        applyItemTuition: false,
+        applyItemAfterschool: false,
+        applyItemOther: false,
+        applyItemOtherText: '',
         amountNumber: '',
         teacherReview: '',
         teacherName: '',
@@ -1385,7 +1360,6 @@
           throw new Error('模板 XML 解析失敗: ' + errNode[0].textContent);
         }
 
-        // Helper to find descendants by localName
         function findDescendant(node, localName) {
           if (!node) return null;
           for (let i = 0; i < node.childNodes.length; i++) {
@@ -1413,7 +1387,7 @@
           return res;
         }
 
-        const tbl = findDescendant(xmlDoc, 'tbl');
+        const tbl = xmlDoc.getElementsByTagNameNS('*', 'tbl')[0] || xmlDoc.getElementsByTagName('w:tbl')[0] || findDescendant(xmlDoc, 'tbl');
         if (!tbl) throw new Error('未在 Word 模板中找到表格結構');
 
         const rows = findChildren(tbl, 'tr');
@@ -1443,12 +1417,13 @@
           }
           r.appendChild(rPr);
           const t = xmlDoc.createElementNS(W_NS, 'w:t');
+          t.setAttribute('xml:space', 'preserve');
           t.textContent = text;
           r.appendChild(t);
           return r;
         }
 
-        function setCellContent(tc, lines, align = 'center', fontSize = 10, bold = false) {
+        function setCellContent(tc, lines, align = 'center', fontSize = 10, bold = false, lineRule = 'atLeast', lineSpacing = '0') {
           if (!tc) return;
           const oldPs = findChildren(tc, 'p');
           oldPs.forEach(p => tc.removeChild(p));
@@ -1460,8 +1435,8 @@
             const p = xmlDoc.createElementNS(W_NS, 'w:p');
             const pPr = xmlDoc.createElementNS(W_NS, 'w:pPr');
             const sp = xmlDoc.createElementNS(W_NS, 'w:spacing');
-            sp.setAttributeNS(W_NS, 'w:line', '240');
-            sp.setAttributeNS(W_NS, 'w:lineRule', 'auto');
+            sp.setAttributeNS(W_NS, 'w:line', lineSpacing);
+            sp.setAttributeNS(W_NS, 'w:lineRule', lineRule);
             sp.setAttributeNS(W_NS, 'w:before', '0');
             sp.setAttributeNS(W_NS, 'w:after', '0');
             pPr.appendChild(sp);
@@ -1561,28 +1536,55 @@
         setCellContent(r6Tcs[5], document.getElementById('input-rel3-job').value.trim(), 'center', 10);
         setCellContent(r6Tcs[6], document.getElementById('input-rel3-income').value.trim(), 'center', 10);
 
-        // Facts (Row 7)
-        const factsText = document.getElementById('input-subsidy-facts').value.trim();
-        const r7Tcs = findChildren(rows[7], 'tc');
-        setCellContent(r7Tcs[1], factsText ? factsText.split('\n') : [''], 'both', 10.5);
+        // Row 7: 申請補助事實 + 申請補助項目置於底部 (Row 7 Cell 1, span 14)
+        const applyTuition = document.getElementById('apply-item-tuition').checked;
+        const applyAfterschool = document.getElementById('apply-item-afterschool').checked;
+        const applyOther = document.getElementById('apply-item-other').checked;
+        const applyOtherText = document.getElementById('input-apply-item-other-text').value.trim();
 
-        // Amount (Row 8 - Optional)
+        let itemsLine = (applyTuition ? '☑' : '□') + ' 1.學雜費、代收代辦費   ' +
+                        (applyAfterschool ? '☑' : '□') + ' 2.課後照顧班費用   ' +
+                        (applyOther ? '☑' : '□') + ' 3.其他：(' + (applyOtherText ? ' ' + applyOtherText + ' ' : '                    ') + ')';
+
+        const factsText = document.getElementById('input-subsidy-facts').value.trim();
+        const r7Lines = [];
+        if (factsText) {
+          r7Lines.push(...factsText.split('\n'));
+        }
+        r7Lines.push('');
+        r7Lines.push(itemsLine);
+        const r7Tcs = findChildren(rows[7], 'tc');
+        setCellContent(r7Tcs[1], r7Lines, 'both', 10.5);
+
+        // Row 8: 申請補助金額 (Row 8 Cell 1, span 14) - Strictly guaranteed single line
         const amtStr = document.getElementById('input-amount-number').value.trim();
         const amtNum = parseInt(amtStr, 10);
-        let row8Text = '申請補助金額：新台幣';
+        let row8Text = '';
         if (!isNaN(amtNum) && amtNum > 0) {
-          const amtDec = decomposeAmountChinese(amtStr);
-          row8Text += '  ' + (amtDec.wan.trim() || '   ') + '  萬';
-          row8Text += '  ' + (amtDec.qian.trim() || '   ') + '  仟';
-          row8Text += '  ' + (amtDec.bai.trim() || '   ') + '  佰';
-          row8Text += '  ' + (amtDec.shi.trim() || '   ') + '  拾';
-          row8Text += '  ' + (amtDec.yuan.trim() || '   ') + '  元整';
-          row8Text += '  （NT$ ' + amtNum.toLocaleString('zh-TW') + ' 元）';
+          const wan = Math.floor(amtNum / 10000);
+          const qian = Math.floor((amtNum % 10000) / 1000);
+          const bai = Math.floor((amtNum % 1000) / 100);
+          const shi = Math.floor((amtNum % 100) / 10);
+          const yuan = amtNum % 10;
+          const w_str = wan > 0 ? CHINESE_DIGITS[wan] : '零';
+          const q_str = CHINESE_DIGITS[qian];
+          const b_str = CHINESE_DIGITS[bai];
+          const s_str = CHINESE_DIGITS[shi];
+          const y_str = CHINESE_DIGITS[yuan];
+          row8Text = '申請補助金額：新台幣  ' + w_str + ' 萬  ' + q_str + ' 仟  ' + b_str + ' 佰  ' + s_str + ' 拾  ' + y_str + ' 元整';
         } else {
-          row8Text += '   萬   仟   佰   拾   元整';
+          row8Text = '申請補助金額：新台幣   萬   仟   佰   拾   元整';
         }
         const r8Tcs = findChildren(rows[8], 'tc');
-        setCellContent(r8Tcs[1], row8Text, 'left', 12);
+        const targetTc = r8Tcs[1];
+        const targetTcPr = targetTc.getElementsByTagName('tcPr')[0] || targetTc.getElementsByTagNameNS('*', 'tcPr')[0];
+        if (targetTcPr) {
+          const hasNoWrap = targetTcPr.getElementsByTagName('noWrap')[0] || targetTcPr.getElementsByTagNameNS('*', 'noWrap')[0];
+          if (!hasNoWrap) {
+            targetTcPr.appendChild(xmlDoc.createElementNS(W_NS, 'w:noWrap'));
+          }
+        }
+        setCellContent(targetTc, [row8Text], 'left', 12, false, 'atLeast', '0');
 
         // Teacher Review (Row 9)
         const tReview = document.getElementById('input-teacher-review').value.trim();
@@ -1669,7 +1671,7 @@
       // Top Actions
       document.getElementById('btn-load-sample').addEventListener('click', () => {
         loadDataIntoForm(sampleData);
-        showToast('已載入東勢國小急難扶助真實範例資料', 'success');
+        showToast('已載入範例', 'success');
       });
 
       const confirmModal = document.getElementById('confirm-modal');
@@ -1684,14 +1686,12 @@
         clearAllForm();
       });
 
-
-
       document.getElementById('btn-download-docx').addEventListener('click', generateAndDownloadDocx);
       document.getElementById('btn-quick-download').addEventListener('click', generateAndDownloadDocx);
 
-      // Template chips
+      // Template chips for Subsidy Facts
       document.getElementById('btn-template-1').addEventListener('click', () => {
-        document.getElementById('input-subsidy-facts').value = '學生主要照顧者（家長）於日前工作時不幸遭逢意外重大傷害，經醫師診斷須住院手術並長期臥床休養，至少六個月無法工作，家庭頓失唯一固定經濟來源。\n家中子女皆在學中，突遭此變故致生活與就學陷入困境，導師實地家訪查證屬實，懇請核予教育儲蓄戶急難扶助金以維護學生受教權益。';
+        document.getElementById('input-subsidy-facts').value = '學生主要照顧者（家長）於日前工作時不幸遭逢意外重大傷害，經醫師診斷須住院手術並長期臥床休養，至少六個月無法工作，家庭頓失唯一固定經濟來源。\n家中子女皆在學中，突遭此變故致生活與就學陷入困境，導師實地家訪查證屬實，懇請核予教育儲蓄戶補助以維護學生受教權益。';
         updatePreview();
         showToast('已帶入「傷病意外」陳述範本', 'info');
       });
@@ -1703,14 +1703,14 @@
       });
 
       document.getElementById('btn-template-3').addEventListener('click', () => {
-        document.getElementById('input-subsidy-facts').value = '學生家庭近期突遭不可抗力之重大變故，家庭經濟陷於停擺，日常生活與學業支出面臨重大危機。\n導師主動訪視關心，確認個案生活陷入急難，亟需外部教育資源挹注扶助，以穩定該生校園生活與學習心理。';
+        document.getElementById('input-subsidy-facts').value = '學生家庭近期突遭不可抗力之重大變故，家庭經濟陷於停擺，日常生活與學業支出面臨重大危機。\n導師主動訪視關心，確認個案生活陷入困境，亟需外部教育資源挹注補助，以穩定該生校園生活與學習心理。';
         updatePreview();
         showToast('已帶入「突遭變故」陳述範本', 'info');
       });
 
       // Teacher Review Templates
       document.getElementById('btn-review-tmpl-1').addEventListener('click', () => {
-        document.getElementById('input-teacher-review').value = '經實地家訪查證屬實，該生家庭突遭意外重大變故，頓失主要經濟來源，生活陷入急難，符合教育儲蓄戶補助資格，建請審查小組核予扶助以維護學生受教權益。';
+        document.getElementById('input-teacher-review').value = '經實地家訪查證屬實，該生家庭突遭意外重大變故，頓失主要經濟來源，生活陷入困境，符合教育儲蓄戶補助資格，建請審查小組核予補助以維護學生受教權益。';
         updatePreview();
         showToast('已帶入「急難變故」審查範本', 'info');
       });
@@ -1722,7 +1722,7 @@
       });
 
       document.getElementById('btn-review-tmpl-3').addEventListener('click', () => {
-        document.getElementById('input-teacher-review').value = '經深入家訪關心，該生為單親／弱勢家庭，家中多名子女就學，主要照顧者工作所得有限、生活艱辛，亟需校內急難教育資源挹注，建請從優核予補助。';
+        document.getElementById('input-teacher-review').value = '經深入家訪關心，該生為單親／弱勢家庭，家中多名子女就學，主要照顧者工作所得有限、生活艱辛，亟需校內教育儲蓄戶資源挹注，建請從優核予補助。';
         updatePreview();
         showToast('已帶入「單親弱勢」審查範本', 'info');
       });
