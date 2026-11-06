@@ -1594,21 +1594,7 @@
         setCellContent(r9Tcs[3], formatROCDate(tDate), 'right', 11);
 
         // Committee Result (Row 10 & 11 - Locked for Committee Use)
-        const r10Tcs = findChildren(rows[10], 'tc');
-        setCellContent(r10Tcs[1], ['□通過', '□不通過'], 'center', 13, true);
-
-        const r10c2Lines = [
-          '□低收入戶家庭   □中低收入戶家庭   □家庭突遭變故   □特殊個案',
-          '',
-          '□ 1.學雜費、代收代辦費、',
-          '□ 2.課後照顧班費用',
-          '□ 3.其他：(               )。'
-        ];
-        setCellContent(r10Tcs[2], r10c2Lines, 'both', 10.5);
-
-        // Approved Amount (Row 11 - Blank for Committee)
-        const r11Tcs = findChildren(rows[11], 'tc');
-        setCellContent(r11Tcs[1], '核發金額：新台幣   萬   仟   佰   拾   元整      (粗框內勿填寫)', 'left', 12);
+        // Keep pristine from template so vertical text direction and both checkboxes (□通過  □不通過) are perfectly preserved without clipping
 
         // Teacher signature box (Row 13 Cell 0 - Blank for physical signature/seal)
         // Kept empty so teachers physically sign or stamp their seal after printing
